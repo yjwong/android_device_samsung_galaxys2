@@ -88,7 +88,7 @@ BOARD_VOLD_MAX_PARTITIONS := 12
 BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
 
 # Recovery
-BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/samsung/galaxys2/recovery/recovery_ui.c
+BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/samsung/galaxys2/recovery/recovery_keys.c
 BOARD_USES_MMCUTILS := true
 BOARD_HAS_NO_MISC_PARTITION := true
 BOARD_HAS_NO_SELECT_BUTTON := true
