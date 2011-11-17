@@ -69,6 +69,7 @@ PRODUCT_PACKAGES += \
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
+    static_busybox \
 	make_ext4fs \
 	setup_fs
 
