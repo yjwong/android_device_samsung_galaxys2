@@ -22,9 +22,6 @@ PRODUCT_LOCALES += hdpi
 
 # Init files
 PRODUCT_COPY_FILES := \
-	device/samsung/galaxys2/init:root/init \
-	device/samsung/galaxys2/init:recovery/root/init \
-	device/samsung/galaxys2/init.rc:root/init.rc \
 	device/samsung/galaxys2/lpm.rc:root/lpm.rc \
 	device/samsung/galaxys2/init.smdkv310.usb.rc:root/init.smdkv310.usb.rc \
 	device/samsung/galaxys2/init.smdkc210.rc:root/init.smdkc210.rc \
@@ -56,14 +53,22 @@ PRODUCT_COPY_FILES += \
 
 # Packages
 PRODUCT_PACKAGES := \
+<<<<<<< HEAD
 #	charger \
 #	charger_res_images \
+=======
+>>>>>>> 9d78f7bfecf8422745299366b3c63f0c58faf1d0
 	smdkv310_hdcp_keys \
-    com.android.future.usb.accessory
+	com.android.future.usb.accessory
+
+# Charger
+#PRODUCT_PACKAGES := \
+#	charger \
+#	charger_res_images
 
 # Camera
 PRODUCT_PACKAGES += \
-    Camera
+	Camera
 
 # Sensors
 PRODUCT_PACKAGES += \
@@ -72,16 +77,16 @@ PRODUCT_PACKAGES += \
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
-    static_busybox \
+	static_busybox \
 	make_ext4fs \
 	setup_fs
 
 # Live Wallpapers
 PRODUCT_PACKAGES += \
-    LiveWallpapers \
-    LiveWallpapersPicker \
-    VisualizationWallpapers \
-    librs_jni
+	LiveWallpapers \
+	LiveWallpapersPicker \
+	VisualizationWallpapers \
+	librs_jni
 
 # These are the hardware-specific features
 PRODUCT_COPY_FILES += \
