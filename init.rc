@@ -36,6 +36,11 @@ loglevel 3
     mkdir /mnt/emmc 0000 system system
     mkdir /mnt/usbdisk 0000 system system
 
+    mkdir /mnt 0775 system system
+    mkdir /mnt/sdcard 0775 system system
+    mkdir /mnt/sdcard/extStorages 0775 system system
+    mkdir /mnt/sdcard/extStorages/SdCard 0775 system system
+
 # Create cgroup mount point for cpu accounting
     mkdir /acct
     mount cgroup none /acct cpuacct
@@ -43,7 +48,6 @@ loglevel 3
 
 # Backwards Compat - XXX: Going away in G*
     symlink /mnt/sdcard /sdcard
-    symlink /mnt/emmc /emmc
 
     mkdir /system
     mkdir /data 0771 system system
