@@ -50,6 +50,7 @@ PRODUCT_COPY_FILES += \
 
 # Wifi
 PRODUCT_COPY_FILES += \
+	device/samsung/galaxys2/configs/nvram_net.txt:system/etc/nvram_net.txt \
 	device/samsung/galaxys2/configs/bcmdhd.cal:system/etc/wifi/bcmdhd.cal
 
 PRODUCT_PROPERTY_OVERRIDES := \
