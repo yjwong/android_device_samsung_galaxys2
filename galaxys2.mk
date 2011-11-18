@@ -32,6 +32,14 @@ PRODUCT_COPY_FILES := \
 PRODUCT_COPY_FILES += \
 	device/samsung/galaxys2/configs/sec_ts_ics_bio.idc:system/usr/idc/sec_ts_ics_bio.idc
 
+# Keylayout
+PRODUCT_COPY_FILES += \
+	device/samsung/galaxys2/keylayout/AVRCP.kl:/system/usr/keylayout/AVRCP.kl \
+	device/samsung/galaxys2/keylayout/Broadcom_Bluetooth_HID.kl:/system/usr/keylayout/Broadcom_Bluetooth_HID.kl \
+	device/samsung/galaxys2/keylayout/sec_jack.kl:/system/usr/keylayout/sec_jack.kl \
+	device/samsung/galaxys2/keylayout/sec_key.kl:/system/usr/keylayout/sec_key.kl \
+	device/samsung/galaxys2/keylayout/sec_touchkey.kl:/system/usr/keylayout/sec_touchkey.kl
+
 # Vold
 PRODUCT_COPY_FILES += \
 	device/samsung/galaxys2/configs/vold.fstab:system/etc/vold.fstab \
