@@ -97,9 +97,6 @@ BOARD_HAS_NO_SELECT_BUTTON := true
 # assert
 TARGET_OTA_ASSERT_DEVICE := galaxys2,GT-I9100,GT-I9100M,GT-I9100T
 
-# dumpstate
-BOARD_LIB_DUMPSTATE := libdumpstate.smdkv310
-
 # Use the non-open-source parts, if they're present
 -include vendor/samsung/galaxys2/BoardConfigVendor.mk
 

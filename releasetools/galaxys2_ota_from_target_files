@@ -16,7 +16,7 @@
 
 import sys
 import os
-import c1_common as common
+import galaxys2_common as common
 
 LOCAL_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 RELEASETOOLS_DIR = os.path.abspath(os.path.join(LOCAL_DIR, '../../../build/tools/releasetools'))
@@ -31,7 +31,7 @@ filename = os.path.join(RELEASETOOLS_DIR, "ota_from_target_files")
 ota_from_target_files = common.load_module_from_file('ota_from_target_files', filename)
 
 from ota_from_target_files import *
-import c1_edify_generator as edify_generator
+import galaxys2_edify_generator as edify_generator
 
 __doc__ = ota_from_target_files.__doc__
 
@@ -60,8 +60,8 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   AppendAssertions(script, input_zip)
   device_specific.FullOTA_Assertions()
-  if OPTIONS.backuptool:
-    script.RunBackup("backup")
+#  if OPTIONS.backuptool:
+#    script.RunBackup("backup")
 
   script.ShowProgress(0.5, 0)
 
@@ -73,8 +73,12 @@ def WriteFullOTAPackage(input_zip, output_zip):
   script.UnpackPackageDir("recovery", "/system")
   script.UnpackPackageDir("system", "/system")
 
-  symlinks = CopySystemFiles(input_zip, output_zip)
+  (symlinks, retouch_files) = CopySystemFiles(input_zip, output_zip)
   script.MakeSymlinks(symlinks)
+  if OPTIONS.aslr_mode:
+    script.RetouchBinaries(retouch_files)
+  else:
+    script.UndoRetouchBinaries(retouch_files)
 
   CopyBootFiles(input_zip, output_zip)
 
@@ -83,11 +87,11 @@ def WriteFullOTAPackage(input_zip, output_zip):
 
   script.ShowProgress(0.2, 0)
 
-  if OPTIONS.backuptool:
-    script.ShowProgress(0.2, 10)
-    script.RunBackup("restore")
+#  if OPTIONS.backuptool:
+#    script.ShowProgress(0.2, 10)
+#    script.RunBackup("restore")
 
-  script.RunVerifyCachePartitionSize()
+#  script.RunVerifyCachePartitionSize()
 
   script.ShowProgress(0.2, 10)
   script.EMMCWriteRawImage("/dev/block/mmcblk0p5", "boot.img")
