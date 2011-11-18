@@ -64,14 +64,18 @@ on boot
     class_start default
 
 service ueventd /sbin/ueventd
+    class core
     critical
 
 service console /sbin/sh
+    class core
     console
 
 service recovery /sbin/recovery
+    class core
 
 service adbd /sbin/adbd recovery
+    class core
     disabled
 
 on property:persist.service.adb.enable=1
