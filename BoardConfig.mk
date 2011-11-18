@@ -74,10 +74,8 @@ BOARD_WLAN_DEVICE           := bcm4330
 WIFI_DRIVER_MODULE_PATH     := "/lib/modules/dhd.ko"
 WIFI_DRIVER_FW_STA_PATH     := "/system/vendor/firmware/bcm4330_sta.bin"
 WIFI_DRIVER_FW_AP_PATH      := "/system/vendor/firmware/bcm4330_aps.bin"
-WIFI_DRIVER_MODULE_NAME     := "dhd"
-WIFI_DRIVER_MODULE_ARG      := "firmware_path=/system/vendor/firmware/bcm4330_sta.bin nvram_path=/system/etc/nvram_net.txt"
-BOARD_WLAN_DEVICE_REV       := bcm4330_b2
-WIFI_BAND                   := 802_11_ABG
+WIFI_DRIVER_MODULE_NAME     :=  "dhd"
+WIFI_DRIVER_MODULE_ARG      :=  "firmware_path=/system/vendor/firmware/bcm4330_sta.bin nvram_path=/system/etc/nvram_net.txt"
 
 # Bluetooth
 #BOARD_HAVE_BLUETOOTH := true
@@ -86,6 +84,9 @@ WIFI_BAND                   := 802_11_ABG
 # Vold
 BOARD_VOLD_MAX_PARTITIONS := 12
 BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
+
+# Vibrator
+BOARD_HAS_VIBRATOR_IMPLEMENTATION := ../../device/samsung/galaxys2/vibrator/tspdrv.c
 
 # Recovery
 BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/samsung/galaxys2/recovery/recovery_keys.c
