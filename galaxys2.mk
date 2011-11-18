@@ -57,7 +57,7 @@ PRODUCT_PACKAGES := \
 	com.android.future.usb.accessory
 
 # Charger
-#PRODUCT_PACKAGES := \
+#PRODUCT_PACKAGES += \
 #	charger \
 #	charger_res_images
 
