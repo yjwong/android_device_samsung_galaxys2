@@ -22,9 +22,6 @@ PRODUCT_LOCALES += hdpi
 
 # Init files
 PRODUCT_COPY_FILES := \
-	device/samsung/galaxys2/init:root/init \
-	device/samsung/galaxys2/init:recovery/root/init \
-	device/samsung/galaxys2/init.rc:root/init.rc \
 	device/samsung/galaxys2/lpm.rc:root/lpm.rc \
 	device/samsung/galaxys2/init.smdkv310.usb.rc:root/init.smdkv310.usb.rc \
 	device/samsung/galaxys2/init.smdkc210.rc:root/init.smdkc210.rc \
