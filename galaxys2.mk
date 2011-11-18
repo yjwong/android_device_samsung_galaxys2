@@ -56,14 +56,17 @@ PRODUCT_COPY_FILES += \
 
 # Packages
 PRODUCT_PACKAGES := \
-	charger \
-	charger_res_images \
 	smdkv310_hdcp_keys \
-    com.android.future.usb.accessory
+	com.android.future.usb.accessory
+
+# Charger
+#PRODUCT_PACKAGES := \
+#	charger \
+#	charger_res_images
 
 # Camera
 PRODUCT_PACKAGES += \
-    Camera
+	Camera
 
 # Sensors
 PRODUCT_PACKAGES += \
@@ -72,16 +75,16 @@ PRODUCT_PACKAGES += \
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
-    static_busybox \
+	static_busybox \
 	make_ext4fs \
 	setup_fs
 
 # Live Wallpapers
 PRODUCT_PACKAGES += \
-    LiveWallpapers \
-    LiveWallpapersPicker \
-    VisualizationWallpapers \
-    librs_jni
+	LiveWallpapers \
+	LiveWallpapersPicker \
+	VisualizationWallpapers \
+	librs_jni
 
 # These are the hardware-specific features
 PRODUCT_COPY_FILES += \
