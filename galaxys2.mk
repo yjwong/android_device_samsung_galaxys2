@@ -53,16 +53,11 @@ PRODUCT_COPY_FILES += \
 
 # Packages
 PRODUCT_PACKAGES := \
-<<<<<<< HEAD
-#	charger \
-#	charger_res_images \
-=======
->>>>>>> 9d78f7bfecf8422745299366b3c63f0c58faf1d0
 	smdkv310_hdcp_keys \
 	com.android.future.usb.accessory
 
 # Charger
-#PRODUCT_PACKAGES := \
+#PRODUCT_PACKAGES += \
 #	charger \
 #	charger_res_images
 
