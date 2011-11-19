@@ -60,8 +60,8 @@ BOARD_EGL_CFG := device/samsung/galaxys2/configs/egl.cfg
 USE_OPENGL_RENDERER := true
 
 # Audio
-#BOARD_USES_AUDIO_LEGACY := true
-#BOARD_USE_YAMAHAPLAYER := true
+BOARD_USES_AUDIO_LEGACY := true
+BOARD_USE_YAMAHAPLAYER := true
 
 # Camera
 ifeq ($(USE_CAMERA_STUB),false)
