@@ -63,10 +63,10 @@ on fs
     chown radio system /efs
     chmod 0771 /efs
 
-# permissions for backlight
+    # permissions for backlight
     chown system system /sys/class/backlight/pwm-backlight/brightness
 
-# create data/gps for GPS demon
+    # create data/gps for GPS demon
     chown root system /dev/s3c2410_serial1
     chmod 0660 /dev/s3c2410_serial1
     
@@ -79,16 +79,20 @@ on fs
     mkdir /data/gps 771 system system
     chown system system /data/gps
 
-# UART switch
-# Request of manufacturing application!!!
+    # allow net_raw to have access to /dev/socket directory
+    chown root net_raw /dev/socket
+    chmod 0775 /dev/socket
+
+    # UART switch
+    # Request of manufacturing application!!!
     chown radio system /sys/class/sec/uart_switch/UART_SEL/value
     chmod 0664 /sys/class/sec/uart_switch/UART_SEL/value
 
-# MTP permissions
+    # MTP permissions
     chmod 0660 /dev/usb_mtp_gadget
     chown system system /dev/usb_mtp_gadget
 
-# allow system to modify cpufreq control files
+    # allow system to modify cpufreq control files
     chown root system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
     chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
     chown root system /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
@@ -96,22 +100,22 @@ on fs
     chown root system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
     chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
-# USB Device permission
+    # USB Device permission
     chown system system /sys/devices/platform/android_usb/UsbMenuSel
     chown system system /sys/devices/platform/android_usb/tethering
 
-# setup for alsa snd device
+    # setup for alsa snd device
     chmod 0770 /dev/snd/pcmC0D0c
     chmod 0770 /dev/snd/pcmC0D0p
     chmod 0770 /dev/snd/controlC0
     chmod 0770 /dev/snd/timer
     chmod 0770 /dev/snd/hwC0D0
 
-# Permissions for gpio_keys
+    # Permissions for gpio_keys
     chown radio system /sys/devices/platform/sec_key.0/disabled_keys
     write /sys/devices/platform/sec_key.0/disabled_keys 114,115
 
-# mDNIe
+    # mDNIe
     chown radio system /sys/devices/virtual/mdnieset_outdoor/switch_mdnieset_outdoor/mdnieset_outdoor_file_cmd
     chown radio system /sys/devices/virtual/mdnieset_ui/switch_mdnieset_ui/mdnieset_init_file_cmd
     chown radio system /sys/devices/virtual/mdnieset_ui/switch_mdnieset_ui/mdnieset_user_select_file_cmd
@@ -120,7 +124,7 @@ on fs
     write /sys/class/mdnieset_ui/switch_mdnieset_ui/mdnieset_ui_file_cmd 0
     write /sys/class/mdnieset_ui/switch_mdnieset_ui/mdnieset_user_select_file_cmd 1
 
-# Add permission for ATM.
+    # Add permission for ATM.
     chown radio system /sys/devices/virtual/K3G_GYRO-dev/k3g/gyro_selftest
     chown radio system /sys/devices/virtual/K3G_GYRO-dev/k3g/gyro_get_temp
     chown radio system /sys/devices/virtual/K3G_GYRO-dev/k3g/gyro_power_on
@@ -195,10 +199,10 @@ on fs
     chown radio system /sys/devices/platform/s5p-ehci/ehci_power
     chown radio system /sys/devices/virtual/net/svnet0/waketime
 
-#for jack control
+     #for jack control
     chown radio system /sys/class/jack/jack_selector/select_jack
 
-#bluetooth
+    #bluetooth
     chown bluetooth bluetooth /dev/s3c2410_serial0
     chmod 0660 /dev/s3c2410_serial0
     chmod 0660 /sys/class/rfkill/rfkill0/state
@@ -208,11 +212,11 @@ on fs
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
     chown bluetooth bluetooth /sys/class/rfkill/rfkill1/type
 
-# for datarouter
+    # for datarouter
     chown system system /dev/ttyGS0
     chown system system /dev/dun
 
-# Audio Tunning Files
+    # Audio Tunning Files
     chmod 0777 /system/etc/audio/stream_speaker.txt
     chmod 0777 /system/etc/audio/stream_headset.txt
     chmod 0777 /system/etc/audio/stream_earpiece.txt
