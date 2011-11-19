@@ -60,8 +60,8 @@ BOARD_EGL_CFG := device/samsung/galaxys2/configs/egl.cfg
 USE_OPENGL_RENDERER := true
 
 # Audio
-BOARD_USES_AUDIO_LEGACY := true
-BOARD_USE_YAMAHAPLAYER := true
+#BOARD_USES_AUDIO_LEGACY := true
+#BOARD_USE_YAMAHAPLAYER := true
 
 # Camera
 ifeq ($(USE_CAMERA_STUB),false)
@@ -74,7 +74,8 @@ BOARD_MOBILEDATA_INTERFACE_NAME := "pdp0"
 # Wifi
 WPA_SUPPLICANT_VERSION      := VER_0_6_X
 BOARD_WPA_SUPPLICANT_DRIVER := WEXT
-BOARD_WLAN_DEVICE           := bcm4330
+BOARD_WLAN_DEVICE           := bcmdhd
+BOARD_WLAN_DEVICE_REV       := bcm4330_b2
 WIFI_DRIVER_MODULE_PATH     := "/lib/modules/dhd.ko"
 WIFI_DRIVER_FW_STA_PATH     := "/system/vendor/firmware/bcm4330_sta.bin"
 WIFI_DRIVER_FW_AP_PATH      := "/system/vendor/firmware/bcm4330_aps.bin"
