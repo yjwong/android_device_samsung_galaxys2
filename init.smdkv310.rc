@@ -233,7 +233,7 @@ service sdcard /system/bin/sdcard /data/media 1023 1023
     class late_start
 
 # wi-fi
-service dhcpcd_eth0 /system/bin/dhcpcd -ABKL eth0
+service dhcpcd_eth0 /system/bin/dhcpcd -ABKL
     class main
     disabled
     oneshot
