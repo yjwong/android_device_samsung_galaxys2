@@ -17,7 +17,7 @@
 # This variable is set first, so it can be overridden
 # by BoardConfigVendor.mk
 USE_CAMERA_STUB := true
-BOARD_USES_GENERIC_AUDIO := true
+BOARD_USES_GENERIC_AUDIO := false
 BOARD_USES_LIBSECRIL_STUB := true
 
 TARGET_CPU_ABI := armeabi-v7a
@@ -58,6 +58,10 @@ TARGET_RELEASETOOL_IMG_FROM_TARGET_SCRIPT := ./device/samsung/galaxys2/releaseto
 # Graphics
 BOARD_EGL_CFG := device/samsung/galaxys2/configs/egl.cfg
 USE_OPENGL_RENDERER := true
+
+# Audio
+BOARD_USES_AUDIO_LEGACY := true
+BOARD_USE_YAMAHAPLAYER := true
 
 # Camera
 ifeq ($(USE_CAMERA_STUB),false)
