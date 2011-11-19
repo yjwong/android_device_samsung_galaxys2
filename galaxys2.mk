@@ -68,6 +68,7 @@ PRODUCT_COPY_FILES += \
 # Packages
 PRODUCT_PACKAGES := \
     audio.primary.smdkv310 \
+    gps.smdkv310 \
 	smdkv310_hdcp_keys \
 	com.android.future.usb.accessory
 
