@@ -74,17 +74,15 @@ BOARD_MOBILEDATA_INTERFACE_NAME := "pdp0"
 # Wifi
 WPA_SUPPLICANT_VERSION           := VER_0_8_X
 BOARD_WPA_SUPPLICANT_DRIVER      := WEXT
-CONFIG_DRIVER_WEXT               := true
-BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
 BOARD_WLAN_DEVICE                := bcmdhd
 BOARD_WLAN_DEVICE_REV            := bcm4330_b1
-WIFI_BAND                        := 802_11_ABG
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
 WIFI_DRIVER_MODULE_PATH          := "/lib/modules/dhd.ko"
-WIFI_DRIVER_FW_PATH_STA          := "/vendor/firmware/fw_bcmdhd.bin"
-WIFI_DRIVER_FW_PATH_P2P          := "/vendor/firmware/fw_bcmdhd_p2p.bin"
-WIFI_DRIVER_FW_PATH_AP           := "/vendor/firmware/fw_bcmdhd_apsta.bin"
+WIFI_DRIVER_FW_PATH_STA          := "/system/vendor/firmware/bcm4330_sta.bin"
+WIFI_DRIVER_FW_PATH_AP           := "/system/vendor/firmware/bcm4330_aps.bin"
 WIFI_DRIVER_MODULE_NAME          :=  "dhd"
-WIFI_DRIVER_MODULE_ARG           :=  "firmware_path=/vendor/firmware/fw_bcmdhd.bin nvram_path=/system/etc/nvram_net.txt"
+WIFI_DRIVER_MODULE_ARG           :=  "firmware_path=/system/vendor/firmware/bcm4330_sta.bin nvram_path=/system/etc/nvram_net.txt"
+WIFI_BAND                        := 802_11_ABG
 
 # Bluetooth
 #BOARD_HAVE_BLUETOOTH := true
