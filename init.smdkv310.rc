@@ -6,6 +6,7 @@ on early-init
     mkdir /mnt/sdcard 0775 system system
     mkdir /mnt/sdcard/extStorages 0775 system system
     mkdir /mnt/sdcard/extStorages/SdCard 0775 system system
+    mkdir /mnt/sdcard/extStorages/UsbDisk 0775 system system
 
 	# for backwards compatibility
 	symlink /mnt/sdcard /sdcard
