@@ -7,6 +7,7 @@
 /dev/ump 0666 system graphics
 /dev/s5p-jpeg 0660 system system
 /dev/s3c-mfc 0660 system graphics
+/dev/s3c-mem 0660 system graphics
 
 # camera
 /dev/video0 0660 system camera
