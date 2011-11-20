@@ -28,6 +28,11 @@ PRODUCT_COPY_FILES := \
 	device/samsung/galaxys2/init.smdkv310.rc:root/init.smdkv310.rc \
 	device/samsung/galaxys2/ueventd.smdkv310.rc:root/ueventd.smdkv310.rc
 
+# APNs - REMOVE IF VENDOR CYANOGEN IS BACK
+PRODUCT_COPY_FILES += \
+	device/samsung/galaxys2/configs/apns-conf.xml:system/etc/apns-conf.xml \
+	device/samsung/galaxys2/configs/spn-conf.xml:system/etc/spn-conf.xml
+
 # Touchscreen
 PRODUCT_COPY_FILES += \
 	device/samsung/galaxys2/configs/sec_ts_ics_bio.idc:system/usr/idc/sec_ts_ics_bio.idc
