@@ -85,8 +85,8 @@ WIFI_DRIVER_MODULE_ARG           :=  "firmware_path=/system/vendor/firmware/bcm4
 WIFI_BAND                        := 802_11_ABG
 
 # Bluetooth
-#BOARD_HAVE_BLUETOOTH := true
-#BOARD_HAVE_BLUETOOTH_BCM := true
+BOARD_HAVE_BLUETOOTH := true
+BOARD_HAVE_BLUETOOTH_BCM := true
 
 # Vold
 BOARD_VOLD_MAX_PARTITIONS := 12
