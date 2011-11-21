@@ -38,12 +38,12 @@
              android:primary="true"
              android:removable="false" />
 
-    <storage android:mountPoint="/mnt/sdcard/extStorages/SdCard"
+    <storage android:mountPoint="/mnt/extsdcard"
              android:storageDescription="@string/storage_sd_card"
              android:primary="false"
              android:removable="true" />
 
-    <storage android:mountPoint="/mnt/sdcard/extStorages/UsbDisk"
+    <storage android:mountPoint="/mnt/usbdisk"
              android:storageDescription="@string/storage_usb"
              android:primary="false"
              android:removable="true" />
