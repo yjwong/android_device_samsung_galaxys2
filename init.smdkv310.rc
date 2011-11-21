@@ -227,12 +227,6 @@ on fs
     chmod 0777 /system/etc/audio/srstunning.txt
     chmod 0777 /system/etc/audio/ArkamysTuning.txt
 
-# create virtual SD card at /mnt/sdcard, based on the /data/media directory
-# daemon will drop to user/group system/media_rw after initializing
-# underlying files in /data/media will be created with user and group media_rw (1023)
-service sdcard /system/bin/sdcard /data/media 1023 1023
-    class late_start
-
 # wi-fi
 service dhcpcd_eth0 /system/bin/dhcpcd -ABKL
     class main
