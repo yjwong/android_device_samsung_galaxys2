@@ -197,6 +197,7 @@
     <!-- Vibrator pattern for feedback about touching a virtual key -->
     <integer-array name="config_virtualKeyVibePattern">
         <item>10</item>
+        <item>30</item>
     </integer-array>
 
 </resources>
