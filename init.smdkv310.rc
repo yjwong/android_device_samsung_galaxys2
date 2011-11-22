@@ -64,6 +64,16 @@ on fs
     chown radio system /efs
     chmod 0771 /efs
 
+    # create log system
+    mkdir /data/log 0777 system system
+
+    chmod 0777 /data/log
+    chmod 0777 /data/anr
+    
+    chmod 0662 /dev/log/radio
+    chmod 0662 /dev/log/main
+    chmod 0662 /dev/log/event
+
     # permissions for backlight
     chown system system /sys/class/backlight/pwm-backlight/brightness
 
