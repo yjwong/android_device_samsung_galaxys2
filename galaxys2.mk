@@ -95,6 +95,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.ril_class=samsung \
     ro.telephony.ril.v3=1 \
+    ro.telephony.sends_barcount=1 \
     mobiledata.interfaces=pdp0,eth0,gprs,ppp0
 
 # Filesystem management tools
