@@ -92,9 +92,6 @@ BOARD_HAVE_BLUETOOTH_BCM := true
 BOARD_VOLD_MAX_PARTITIONS := 12
 BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
 
-# Sensors
-TARGET_USES_OLD_LIBSENSORS_HAL := true
-
 # Vibrator
 BOARD_HAS_VIBRATOR_IMPLEMENTATION := ../../device/samsung/galaxys2/vibrator/tspdrv.c
 
