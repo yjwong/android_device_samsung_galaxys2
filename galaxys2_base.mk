@@ -132,7 +132,8 @@ PRODUCT_COPY_FILES += \
 	packages/wallpapers/LivePicker/android.software.live_wallpaper.xml:system/etc/permissions/android.software.live_wallpaper.xml
 
 PRODUCT_PROPERTY_OVERRIDES += \
-	ro.opengles.version=131072
+	ro.opengles.version=131072 \
+    hwui.render_dirty_regions=false
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.sf.lcd_density=240
