@@ -30,7 +30,7 @@ PRODUCT_COPY_FILES := \
 
 # APNs - REMOVE IF VENDOR CYANOGEN IS BACK
 PRODUCT_COPY_FILES += \
-	device/samsung/galaxys2/configs/apns-conf.xml:system/etc/apns-conf.xml \
+	development/data/etc/apns-conf.xml:system/etc/apns-conf.xml \
 	device/samsung/galaxys2/configs/spn-conf.xml:system/etc/spn-conf.xml
 
 # Audio
