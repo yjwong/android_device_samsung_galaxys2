@@ -14,20 +14,31 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "audio_hw_smdkv310"
+#define LOG_TAG "AudioHardware"
 #define LOG_NDEBUG 0
 
 #include <errno.h>
 #include <pthread.h>
 #include <stdint.h>
 #include <sys/time.h>
+#include <stdlib.h>
 
 #include <cutils/log.h>
+#include <cutils/str_parms.h>
+#include <cutils/properties.h>
 
 #include <hardware/hardware.h>
 #include <system/audio.h>
 #include <hardware/audio.h>
+
+#include <tinyalsa/asoundlib.h>
+#include <audio_utils/resampler.h>
+#include <audio_utils/echo_reference.h>
+#include <hardware/audio_effect.h>
+#include <audio_effects/effect_aec.h>
+
 #include "hwdep.h"
+#include "ril_interface.h"
 
 /* MC1N2 Mixer Controls */
 #define MIXER_MASTER_PLAYBACK_SWITCH            "Master Playback Switch"
@@ -168,83 +179,104 @@
 
 #define DEFAULT_OUT_SAMPLING_RATE 44100
 
+/* ALSA cards for MC1N2 */
+#define CARD_MC1N2_DEFAULT      0
 
-struct stub_audio_device {
+
+struct audio_device {
     struct audio_hw_device device;
+    
+    pthread_mutex_t lock;
+
+    /* RIL */
+    struct ril_handle ril;
 };
 
-struct stub_stream_out {
+struct stream_out {
     struct audio_stream_out stream;
 };
 
-struct stub_stream_in {
+struct stream_in {
     struct audio_stream_in stream;
 };
 
 static uint32_t out_get_sample_rate(const struct audio_stream *stream)
 {
+    LOGD("%s called.\n", __func__ );
     return 44100;
 }
 
 static int out_set_sample_rate(struct audio_stream *stream, uint32_t rate)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static size_t out_get_buffer_size(const struct audio_stream *stream)
 {
+    LOGD("%s called.\n", __func__ );
     return 4096;
 }
 
 static uint32_t out_get_channels(const struct audio_stream *stream)
 {
+    LOGD("%s called.\n", __func__ );
     return AUDIO_CHANNEL_OUT_STEREO;
 }
 
 static int out_get_format(const struct audio_stream *stream)
 {
+    LOGD("%s called.\n", __func__ );
     return AUDIO_FORMAT_PCM_16_BIT;
 }
 
 static int out_set_format(struct audio_stream *stream, int format)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static int out_standby(struct audio_stream *stream)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static int out_dump(const struct audio_stream *stream, int fd)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static int out_set_parameters(struct audio_stream *stream, const char *kvpairs)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static char * out_get_parameters(const struct audio_stream *stream, const char *keys)
 {
+    LOGD("%s called.\n", __func__ );
     return strdup("");
 }
 
 static uint32_t out_get_latency(const struct audio_stream_out *stream)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static int out_set_volume(struct audio_stream_out *stream, float left,
                           float right)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static ssize_t out_write(struct audio_stream_out *stream, const void* buffer,
                          size_t bytes)
 {
+    LOGD("%s called.\n", __func__ );
     /* XXX: fake timing for audio output */
     usleep(bytes * 1000000 / audio_stream_frame_size(&stream->common) /
            out_get_sample_rate(&stream->common));
@@ -254,79 +286,94 @@ static ssize_t out_write(struct audio_stream_out *stream, const void* buffer,
 static int out_get_render_position(const struct audio_stream_out *stream,
                                    uint32_t *dsp_frames)
 {
+    LOGD("%s called.\n", __func__ );
     return -EINVAL;
 }
 
 static int out_add_audio_effect(const struct audio_stream *stream, effect_handle_t effect)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static int out_remove_audio_effect(const struct audio_stream *stream, effect_handle_t effect)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 /** audio_stream_in implementation **/
 static uint32_t in_get_sample_rate(const struct audio_stream *stream)
 {
+    LOGD("%s called.\n", __func__ );
     return 8000;
 }
 
 static int in_set_sample_rate(struct audio_stream *stream, uint32_t rate)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static size_t in_get_buffer_size(const struct audio_stream *stream)
 {
+    LOGD("%s called.\n", __func__ );
     return 320;
 }
 
 static uint32_t in_get_channels(const struct audio_stream *stream)
 {
+    LOGD("%s called.\n", __func__ );
     return AUDIO_CHANNEL_IN_MONO;
 }
 
 static int in_get_format(const struct audio_stream *stream)
 {
+    LOGD("%s called.\n", __func__ );
     return AUDIO_FORMAT_PCM_16_BIT;
 }
 
 static int in_set_format(struct audio_stream *stream, int format)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static int in_standby(struct audio_stream *stream)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static int in_dump(const struct audio_stream *stream, int fd)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static int in_set_parameters(struct audio_stream *stream, const char *kvpairs)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static char * in_get_parameters(const struct audio_stream *stream,
                                 const char *keys)
 {
+    LOGD("%s called.\n", __func__ );
     return strdup("");
 }
 
 static int in_set_gain(struct audio_stream_in *stream, float gain)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static ssize_t in_read(struct audio_stream_in *stream, void* buffer,
                        size_t bytes)
 {
+    LOGD("%s called.\n", __func__ );
     /* XXX: fake timing for audio input */
     usleep(bytes * 1000000 / audio_stream_frame_size(&stream->common) /
            in_get_sample_rate(&stream->common));
@@ -335,11 +382,13 @@ static ssize_t in_read(struct audio_stream_in *stream, void* buffer,
 
 static uint32_t in_get_input_frames_lost(struct audio_stream_in *stream)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static int in_add_audio_effect(const struct audio_stream *stream, effect_handle_t effect)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
@@ -353,11 +402,12 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
                                    uint32_t *channels, uint32_t *sample_rate,
                                    struct audio_stream_out **stream_out)
 {
-    struct stub_audio_device *ladev = (struct stub_audio_device *)dev;
-    struct stub_stream_out *out;
+    LOGD("%s called.\n", __func__ );
+    struct audio_device *ladev = (struct audio_device *)dev;
+    struct stream_out *out;
     int ret;
 
-    out = (struct stub_stream_out *)calloc(1, sizeof(struct stub_stream_out));
+    out = (struct stream_out *)calloc(1, sizeof(struct stream_out));
     if (!out)
         return -ENOMEM;
 
@@ -390,47 +440,58 @@ err_open:
 static void adev_close_output_stream(struct audio_hw_device *dev,
                                      struct audio_stream_out *stream)
 {
+    LOGD("%s called.\n", __func__ );
     free(stream);
 }
 
 static int adev_set_parameters(struct audio_hw_device *dev, const char *kvpairs)
 {
+    LOGD("%s called.\n", __func__ );
     return -ENOSYS;
 }
 
 static char * adev_get_parameters(const struct audio_hw_device *dev,
                                   const char *keys)
 {
+    LOGD("%s called.\n", __func__ );
     return NULL;
 }
 
 static int adev_init_check(const struct audio_hw_device *dev)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static int adev_set_voice_volume(struct audio_hw_device *dev, float volume)
 {
+    LOGD("%s called.\n", __func__ );
+    // connectRILDIfRequired()
     return -ENOSYS;
 }
 
 static int adev_set_master_volume(struct audio_hw_device *dev, float volume)
 {
+    LOGD("%s called.\n", __func__ );
     return -ENOSYS;
 }
 
 static int adev_set_mode(struct audio_hw_device *dev, int mode)
 {
+    LOGD("%s called.\n", __func__ );
+    // connectRILDIfRequired()
     return 0;
 }
 
 static int adev_set_mic_mute(struct audio_hw_device *dev, bool state)
 {
+    LOGD("%s called.\n", __func__ );
     return -ENOSYS;
 }
 
 static int adev_get_mic_mute(const struct audio_hw_device *dev, bool *state)
 {
+    LOGD("%s called.\n", __func__ );
     return -ENOSYS;
 }
 
@@ -438,6 +499,7 @@ static size_t adev_get_input_buffer_size(const struct audio_hw_device *dev,
                                          uint32_t sample_rate, int format,
                                          int channel_count)
 {
+    LOGD("%s called.\n", __func__ );
     return 320;
 }
 
@@ -447,11 +509,12 @@ static int adev_open_input_stream(struct audio_hw_device *dev, uint32_t devices,
                                   audio_in_acoustics_t acoustics,
                                   struct audio_stream_in **stream_in)
 {
-    struct stub_audio_device *ladev = (struct stub_audio_device *)dev;
-    struct stub_stream_in *in;
+    LOGD("%s called.\n", __func__ );
+    struct audio_device *ladev = (struct audio_device *)dev;
+    struct stream_in *in;
     int ret;
 
-    in = (struct stub_stream_in *)calloc(1, sizeof(struct stub_stream_in));
+    in = (struct stream_in *)calloc(1, sizeof(struct stream_in));
     if (!in)
         return -ENOMEM;
 
@@ -483,22 +546,32 @@ err_open:
 static void adev_close_input_stream(struct audio_hw_device *dev,
                                    struct audio_stream_in *in)
 {
+    LOGD("%s called.\n", __func__ );
     return;
 }
 
 static int adev_dump(const audio_hw_device_t *device, int fd)
 {
+    LOGD("%s called.\n", __func__ );
     return 0;
 }
 
 static int adev_close(hw_device_t *device)
 {
+    LOGD("%s called.\n", __func__ );
+
+    struct audio_device *adev = (struct audio_device *)device;
+
+    /* RIL */
+    ril_close(&adev->ril);
+
     free(device);
     return 0;
 }
 
 static uint32_t adev_get_supported_devices(const struct audio_hw_device *dev)
 {
+    LOGD("%s called.\n", __func__ );
     return (/* OUT */
             AUDIO_DEVICE_OUT_EARPIECE |
             AUDIO_DEVICE_OUT_SPEAKER |
@@ -520,18 +593,31 @@ static uint32_t adev_get_supported_devices(const struct audio_hw_device *dev)
             AUDIO_DEVICE_IN_DEFAULT);
 }
 
+/*
+*   RIL
+*/
+
+
+
 static int adev_open(const hw_module_t* module, const char* name,
                      hw_device_t** device)
 {
-    struct stub_audio_device *adev;
+    LOGD("%s called.\n", __func__ );
+    struct audio_device *adev;
     int ret;
 
     if (strcmp(name, AUDIO_HARDWARE_INTERFACE) != 0)
+    {
+        LOGE("%s: audio interface named %s not found.\n", __func__, name);
         return -EINVAL;
+    }
 
-    adev = calloc(1, sizeof(struct stub_audio_device));
+    adev = calloc(1, sizeof(struct audio_device));
     if (!adev)
+    {
+        LOGE("%s: couldn't allocate memory.\n", __func__);
         return -ENOMEM;
+    }
 
     adev->device.common.tag = HARDWARE_DEVICE_TAG;
     adev->device.common.version = 0;
@@ -553,6 +639,12 @@ static int adev_open(const hw_module_t* module, const char* name,
     adev->device.open_input_stream = adev_open_input_stream;
     adev->device.close_input_stream = adev_close_input_stream;
     adev->device.dump = adev_dump;
+
+    pthread_mutex_lock(&adev->lock);
+
+    /* RIL */
+    ril_open(&adev->ril);
+    pthread_mutex_unlock(&adev->lock);
 
     *device = &adev->device.common;
 
