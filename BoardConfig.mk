@@ -60,6 +60,7 @@ BOARD_EGL_CFG := device/samsung/galaxys2/configs/egl.cfg
 USE_OPENGL_RENDERER := true
 BOARD_USES_HWCOMPOSER := true
 BOARD_USES_LEGACY_EGL := true
+COMMON_GLOBAL_CFLAGS += -DUSES_LEGACY_EGL
 
 # Audio
 BOARD_USES_AUDIO_LEGACY := true
