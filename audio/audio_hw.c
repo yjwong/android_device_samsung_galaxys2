@@ -74,7 +74,15 @@
 #define CARD_MC1N2_DEFAULT      0
 
 /* Ports for MC1N2 */
-#define PORT_MM 0
+#define PORT_DEFAULT    0
+
+struct pcm_config pcm_config_vx = {
+    .channels = 2,
+    .rate = VX_NB_SAMPLING_RATE,
+    .period_size = 160,
+    .period_count = 2,
+    .format = PCM_FORMAT_S16_LE,
+};
 
 struct audio_device {
     struct audio_hw_device hw_device;
@@ -190,7 +198,40 @@ static int set_route_by_array(struct mixer *mixer, struct route_setting *route,
 static int start_call(struct audio_device *adev)
 {
     LOGD("%s called.\n", __func__ );
+    LOGE("Opening PCM");
+
+    pcm_config_vx.rate = adev->wb_amr ? VX_WB_SAMPLING_RATE : VX_NB_SAMPLING_RATE;
+
+    /* Open modem PCM channels */
+    if (adev->pcm_modem_dl == NULL) {
+        adev->pcm_modem_dl = pcm_open(0, PORT_DEFAULT, PCM_OUT, &pcm_config_vx);
+        if (!pcm_is_ready(adev->pcm_modem_dl)) {
+            LOGE("cannot open PCM modem DL stream: %s", pcm_get_error(adev->pcm_modem_dl));
+            goto err_open_dl;
+        }
+    }
+
+    if (adev->pcm_modem_ul == NULL) {
+        adev->pcm_modem_ul = pcm_open(0, PORT_DEFAULT, PCM_IN, &pcm_config_vx);
+        if (!pcm_is_ready(adev->pcm_modem_ul)) {
+            LOGE("cannot open PCM modem UL stream: %s", pcm_get_error(adev->pcm_modem_ul));
+            goto err_open_ul;
+        }
+    }
+
+    pcm_start(adev->pcm_modem_dl);
+    pcm_start(adev->pcm_modem_ul);
+
     return 0;
+
+err_open_ul:
+    pcm_close(adev->pcm_modem_ul);
+    adev->pcm_modem_ul = NULL;
+err_open_dl:
+    pcm_close(adev->pcm_modem_dl);
+    adev->pcm_modem_dl = NULL;
+
+    return -ENOMEM;
 }
 
 static void end_call(struct audio_device *adev)
@@ -555,7 +596,7 @@ static int start_output_stream(struct stream_out *out)
     LOGD("%s called.\n", __func__ );
     struct audio_device *adev = out->dev;
     unsigned int card = CARD_MC1N2_DEFAULT;
-    unsigned int port = PORT_MM;
+    unsigned int port = PORT_DEFAULT;
 
     adev->active_output = out;
 
