@@ -125,6 +125,7 @@ struct audio_device {
     int tty_mode;
     bool bluetooth_nrec;
     int wb_amr;
+    bool low_power;
 
     /* RIL */
     struct ril_handle ril;
@@ -183,6 +184,8 @@ static void select_input_device(struct audio_device *adev);
 static int adev_set_voice_volume(struct audio_hw_device *dev, float volume);
 static int do_input_standby(struct stream_in *in);
 static int do_output_standby(struct stream_out *out);
+static int start_output_stream(struct stream_out *out);
+static int get_playback_delay(struct stream_out *out, size_t frames, struct echo_reference_buffer *buffer);
 
 /* The enable flag when 0 makes the assumption that enums are disabled by
  * "Off" and integers/booleans by 0 */
@@ -382,9 +385,111 @@ static ssize_t out_write(struct audio_stream_out *stream, const void* buffer,
                          size_t bytes)
 {
     LOGD("%s called.\n", __func__ );
-    /* XXX: fake timing for audio output */
-    usleep(bytes * 1000000 / audio_stream_frame_size(&stream->common) /
-           out_get_sample_rate(&stream->common));
+    int ret;
+    struct stream_out *out = (struct stream_out *)stream;
+    struct audio_device *adev = out->dev;
+    size_t frame_size = audio_stream_frame_size(&out->stream.common);
+    size_t in_frames = bytes / frame_size;
+    size_t out_frames = RESAMPLER_BUFFER_SIZE / frame_size;
+    bool force_input_standby = false;
+    struct stream_in *in;
+    bool low_power;
+    int kernel_frames;
+    void *buf;
+
+    /* acquiring hw device mutex systematically is useful if a low priority thread is waiting
+     * on the output stream mutex - e.g. executing select_mode() while holding the hw device
+     * mutex
+     */
+    pthread_mutex_lock(&adev->lock);
+    pthread_mutex_lock(&out->lock);
+    if (out->standby) {
+        ret = start_output_stream(out);
+        if (ret != 0) {
+            pthread_mutex_unlock(&adev->lock);
+            goto exit;
+        }
+        out->standby = 0;
+        /* a change in output device may change the microphone selection */
+        if (adev->active_input &&
+                adev->active_input->source == AUDIO_SOURCE_VOICE_COMMUNICATION)
+            force_input_standby = true;
+    }
+    low_power = adev->low_power && !adev->active_input;
+    pthread_mutex_unlock(&adev->lock);
+
+    if (low_power != out->low_power) {
+        if (low_power) {
+            out->write_threshold = LONG_PERIOD_SIZE * PLAYBACK_LONG_PERIOD_COUNT;
+            out->config.avail_min = LONG_PERIOD_SIZE;
+        } else {
+            out->write_threshold = SHORT_PERIOD_SIZE * PLAYBACK_SHORT_PERIOD_COUNT;
+            out->config.avail_min = SHORT_PERIOD_SIZE;
+        }
+        pcm_set_avail_min(out->pcm, out->config.avail_min);
+        out->low_power = low_power;
+    }
+
+    /* only use resampler if required */
+    if (out->config.rate != DEFAULT_OUT_SAMPLING_RATE) {
+        out->resampler->resample_from_input(out->resampler,
+                                            (int16_t *)buffer,
+                                            &in_frames,
+                                            (int16_t *)out->buffer,
+                                            &out_frames);
+        buf = out->buffer;
+    } else {
+        out_frames = in_frames;
+        buf = (void *)buffer;
+    }
+    if (out->echo_reference != NULL) {
+        struct echo_reference_buffer b;
+        b.raw = (void *)buffer;
+        b.frame_count = in_frames;
+
+        get_playback_delay(out, out_frames, &b);
+        out->echo_reference->write(out->echo_reference, &b);
+    }
+
+    /* do not allow more than out->write_threshold frames in kernel pcm driver buffer */
+    do {
+        struct timespec time_stamp;
+
+        if (pcm_get_htimestamp(out->pcm, (unsigned int *)&kernel_frames, &time_stamp) < 0)
+            break;
+        kernel_frames = pcm_get_buffer_size(out->pcm) - kernel_frames;
+
+        if (kernel_frames > out->write_threshold) {
+            unsigned long time = (unsigned long)
+                    (((int64_t)(kernel_frames - out->write_threshold) * 1000000) /
+                            MM_FULL_POWER_SAMPLING_RATE);
+            if (time < MIN_WRITE_SLEEP_US)
+                time = MIN_WRITE_SLEEP_US;
+            usleep(time);
+        }
+    } while (kernel_frames > out->write_threshold);
+
+    ret = pcm_mmap_write(out->pcm, (void *)buf, out_frames * frame_size);
+
+exit:
+    pthread_mutex_unlock(&out->lock);
+
+    if (ret != 0) {
+        usleep(bytes * 1000000 / audio_stream_frame_size(&stream->common) /
+               out_get_sample_rate(&stream->common));
+    }
+
+    if (force_input_standby) {
+        pthread_mutex_lock(&adev->lock);
+        if (adev->active_input) {
+            in = adev->active_input;
+            pthread_mutex_lock(&in->lock);
+            do_input_standby(in);
+            pthread_mutex_unlock(&in->lock);
+        }
+        pthread_mutex_unlock(&adev->lock);
+    }
+
     return bytes;
 }
 
@@ -404,6 +509,32 @@ static int out_add_audio_effect(const struct audio_stream *stream, effect_handle
 static int out_remove_audio_effect(const struct audio_stream *stream, effect_handle_t effect)
 {
     LOGD("%s called.\n", __func__ );
+    return 0;
+}
+
+static int get_playback_delay(struct stream_out *out, size_t frames, struct echo_reference_buffer *buffer)
+{
+    size_t kernel_frames;
+    int status;
+
+    status = pcm_get_htimestamp(out->pcm, &kernel_frames, &buffer->time_stamp);
+    if (status < 0) {
+        buffer->time_stamp.tv_sec  = 0;
+        buffer->time_stamp.tv_nsec = 0;
+        buffer->delay_ns           = 0;
+        LOGV("get_playback_delay(): pcm_get_htimestamp error,"
+                "setting playbackTimestamp to 0");
+        return status;
+    }
+
+    kernel_frames = pcm_get_buffer_size(out->pcm) - kernel_frames;
+
+    /* adjust render time stamp with delay added by current driver buffer.
+     * Add the duration of current frame as we want the render time of the last
+     * sample being written. */
+    buffer->delay_ns = (long)(((int64_t)(kernel_frames + frames)* 1000000000)/
+                            MM_FULL_POWER_SAMPLING_RATE);
+
     return 0;
 }
 
@@ -826,7 +957,7 @@ static int start_output_stream(struct stream_out *out)
     out->config.avail_min = LONG_PERIOD_SIZE;
     out->low_power = 1;
 
-    //out->pcm = pcm_open(card, port, PCM_OUT | PCM_MMAP | PCM_NOIRQ, &out->config);
+    out->pcm = pcm_open(card, port, PCM_OUT | PCM_MMAP | PCM_NOIRQ, &out->config);
 
     if (!pcm_is_ready(out->pcm)) {
         LOGE("cannot open pcm_out driver: %s", pcm_get_error(out->pcm));
