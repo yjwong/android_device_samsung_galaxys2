@@ -54,6 +54,8 @@ struct audio_device {
     pthread_mutex_t lock;
     struct mixer *mixer;
     struct mixer_ctls mixer_ctls;
+    int mode;
+    int devices;
 
     /* RIL */
     struct ril_handle ril;
@@ -66,6 +68,42 @@ struct stream_out {
 struct stream_in {
     struct audio_stream_in stream;
 };
+
+/* The enable flag when 0 makes the assumption that enums are disabled by
+ * "Off" and integers/booleans by 0 */
+static int set_route_by_array(struct mixer *mixer, struct route_setting *route,
+                              int enable)
+{
+    LOGD("%s called.\n", __func__ );
+    struct mixer_ctl *ctl;
+    unsigned int i, j;
+
+    /* Go through the route array and set each value */
+    i = 0;
+    while (route[i].ctl_name) {
+        ctl = mixer_get_ctl_by_name(mixer, route[i].ctl_name);
+        if (!ctl)
+            return -EINVAL;
+
+        if (route[i].strval) {
+            if (enable)
+                mixer_ctl_set_enum_by_string(ctl, route[i].strval);
+            else
+                mixer_ctl_set_enum_by_string(ctl, "Off");
+        } else {
+            /* This ensures multiple (i.e. stereo) values are set jointly */
+            for (j = 0; j < mixer_ctl_get_num_values(ctl); j++) {
+                if (enable)
+                    mixer_ctl_set_value(ctl, j, route[i].intval);
+                else
+                    mixer_ctl_set_value(ctl, j, 0);
+            }
+        }
+        i++;
+    }
+
+    return 0;
+}
 
 static uint32_t out_get_sample_rate(const struct audio_stream *stream)
 {
@@ -708,7 +746,12 @@ static int adev_open(const hw_module_t* module, const char* name,
         LOGD("Located all mixer controls.");
     }
 
+    /* Set the default route before the PCM stream is opened */
     pthread_mutex_lock(&adev->lock);
+    set_route_by_array(adev->mixer, defaults, 1);
+    adev->mode = AUDIO_MODE_NORMAL;
+    adev->devices = AUDIO_DEVICE_OUT_SPEAKER | AUDIO_DEVICE_IN_BUILTIN_MIC;
+    //select_output_device(adev);
 
     /* RIL */
     ril_open(&adev->ril);

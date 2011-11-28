@@ -289,3 +289,100 @@ struct mixer_ctls
     struct mixer_ctl *mixer_voice_playback_switch;
     struct mixer_ctl *mixer_voice_playback_volume;
 };
+
+struct route_setting
+{
+    char *ctl_name;
+    int intval;
+    char *strval;
+};
+
+/* route settings - these are values that never change */
+struct route_setting defaults[] = {
+    /* general */
+    {
+        .ctl_name = MIXER_MASTER_PLAYBACK_SWITCH,
+        .strval = "On",
+    },
+    {
+        .ctl_name = MIXER_MASTER_PLAYBACK_VOLUME,
+        .intval = 93,
+    },
+
+    /* speaker */
+    {
+        .ctl_name = MIXER_SPEAKER_PLAYBACK_SWITCH,
+        .strval = "On",
+    },
+    {
+        .ctl_name = MIXER_SPEAKER_PLAYBACK_VOLUME,
+        .intval = 31,
+    },
+
+    /* headphone */
+    {
+        .ctl_name = MIXER_HEADPHONE_PLAYBACK_SWITCH,
+        .strval = "Off",
+    },
+    {
+        .ctl_name = MIXER_HEADPHONE_PLAYBACK_VOLUME,
+        .intval = 31,
+    },
+    {
+        .ctl_name = MIXER_HP_GAIN_PLAYBACK_VOLUME,
+        .intval = 3,
+    },
+
+    /* voice */
+    {
+        .ctl_name = MIXER_VOICE_PLAYBACK_SWITCH,
+        .strval = "Off",
+    },
+    {
+        .ctl_name = MIXER_VOICE_PLAYBACK_VOLUME,
+        .intval = 93,
+    },
+
+    /* dac */
+    {
+        .ctl_name = MIXER_DAC_PLAYBACK_SWITCH,
+        .strval = "Off",
+    },
+    {
+        .ctl_name = MIXER_DAC_PLAYBACK_VOLUME,
+        .intval = 93,
+    },
+
+    {
+        .ctl_name = NULL,
+    },
+};
+
+// speaker route settings
+struct route_setting spk_output[] = {
+    {
+        .ctl_name = MIXER_SPEAKER_PLAYBACK_SWITCH,
+        .strval = "On",
+    },
+    {
+        .ctl_name = MIXER_SPEAKER_PLAYBACK_VOLUME,
+        .intval = 31,
+    },
+};
+
+// headphone route settings
+struct route_setting hp_output[] = {
+    {
+        .ctl_name = MIXER_HEADPHONE_PLAYBACK_SWITCH,
+        .strval = "On",
+    },
+    {
+        .ctl_name = MIXER_HEADPHONE_PLAYBACK_VOLUME,
+        .intval = 31,
+    },
+    {
+        .ctl_name = MIXER_HP_GAIN_PLAYBACK_VOLUME,
+        .intval = 3,
+    },
+};
+/* end of route settings */
