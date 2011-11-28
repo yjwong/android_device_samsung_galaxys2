@@ -63,7 +63,16 @@
 /* minimum sleep time in out_write() when write threshold is not reached */
 #define MIN_WRITE_SLEEP_US 5000
 
+
+#define RESAMPLER_BUFFER_FRAMES (SHORT_PERIOD_SIZE * 2)
+#define RESAMPLER_BUFFER_SIZE (4 * RESAMPLER_BUFFER_FRAMES)
+
 #define DEFAULT_OUT_SAMPLING_RATE 44100
+
+/* sampling rate when using MM low power port */
+#define MM_LOW_POWER_SAMPLING_RATE 44100
+/* sampling rate when using MM full power port */
+#define MM_FULL_POWER_SAMPLING_RATE 48000
 /* sampling rate when using VX port for narrow band */
 #define VX_NB_SAMPLING_RATE 8000
 /* sampling rate when using VX port for wide band */
@@ -76,6 +85,21 @@
 /* Ports for MC1N2 */
 #define PORT_DEFAULT    0
 
+enum tty_modes {
+    TTY_MODE_OFF,
+    TTY_MODE_VCO,
+    TTY_MODE_HCO,
+    TTY_MODE_FULL
+};
+
+
+struct pcm_config pcm_config_mm = {
+    .channels = 2,
+    .rate = MM_FULL_POWER_SAMPLING_RATE,
+    .period_size = LONG_PERIOD_SIZE,
+    .period_count = PLAYBACK_LONG_PERIOD_COUNT,
+    .format = PCM_FORMAT_S16_LE,
+};
 struct pcm_config pcm_config_vx = {
     .channels = 2,
     .rate = VX_NB_SAMPLING_RATE,
@@ -98,7 +122,8 @@ struct audio_device {
     float voice_volume;
     struct stream_in *active_input;
     struct stream_out *active_output;
-
+    int tty_mode;
+    bool bluetooth_nrec;
     int wb_amr;
 
     /* RIL */
@@ -291,8 +316,8 @@ static int do_output_standby(struct stream_out *out)
         be done when the call is ended */
         if (adev->mode != AUDIO_MODE_IN_CALL) {
             /* FIXME: only works if only one output can be active at a time */
-            set_route_by_array(adev->mixer, hp_output, 0);
-            set_route_by_array(adev->mixer, spk_output, 0);
+            //set_route_by_array(adev->mixer, hp_output, 0);
+            //set_route_by_array(adev->mixer, spk_output, 0);
         }
 
         /* stop writing to echo reference */
@@ -341,7 +366,9 @@ static char * out_get_parameters(const struct audio_stream *stream, const char *
 static uint32_t out_get_latency(const struct audio_stream_out *stream)
 {
     LOGD("%s called.\n", __func__ );
-    return 0;
+    struct stream_out *out = (struct stream_out *)stream;
+
+    return (SHORT_PERIOD_SIZE * PLAYBACK_SHORT_PERIOD_COUNT * 1000) / out->config.rate;
 }
 
 static int out_set_volume(struct audio_stream_out *stream, float left,
@@ -511,8 +538,70 @@ static int in_remove_audio_effect(const struct audio_stream *stream, effect_hand
     return 0;
 }
 
+void audio_set_wb_amr_callback(void *data, int enable)
+{
+    LOGD("%s called.\n", __func__ );
+    struct audio_device *adev = (struct audio_device *)data;
+
+    pthread_mutex_lock(&adev->lock);
+    if (adev->wb_amr != enable) {
+        adev->wb_amr = enable;
+
+        /* reopen the modem PCMs at the new rate */
+        if (adev->in_call) {
+            end_call(adev);
+            //set_eq_filter(adev);
+            start_call(adev);
+        }
+    }
+    pthread_mutex_unlock(&adev->lock);
+}
+
+static void set_incall_device(struct audio_device *adev)
+{
+    LOGD("%s called.\n", __func__ );
+    int device_type;
+
+    switch(adev->devices & AUDIO_DEVICE_OUT_ALL) {
+        case AUDIO_DEVICE_OUT_EARPIECE:
+            device_type = SOUND_AUDIO_PATH_HANDSET;
+            break;
+        case AUDIO_DEVICE_OUT_SPEAKER:
+        case AUDIO_DEVICE_OUT_AUX_DIGITAL:
+            device_type = SOUND_AUDIO_PATH_SPEAKER;
+            break;
+        case AUDIO_DEVICE_OUT_WIRED_HEADSET:
+            device_type = SOUND_AUDIO_PATH_HEADSET;
+            break;
+        case AUDIO_DEVICE_OUT_WIRED_HEADPHONE:
+            device_type = SOUND_AUDIO_PATH_HEADPHONE;
+            break;
+        case AUDIO_DEVICE_OUT_BLUETOOTH_SCO:
+        case AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET:
+        case AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT:
+            if (adev->bluetooth_nrec)
+                device_type = SOUND_AUDIO_PATH_BLUETOOTH;
+            else
+                device_type = SOUND_AUDIO_PATH_BLUETOOTH_NO_NR;
+            break;
+        default:
+            device_type = SOUND_AUDIO_PATH_HANDSET;
+            break;
+    }
+
+    /* if output device isn't supported, open modem side to handset by default */
+    ril_set_call_audio_path(&adev->ril, device_type);
+}
+
+static void set_input_volumes(struct audio_device *adev, int main_mic_on,
+                              int headset_mic_on, int sub_mic_on)
+{
+    LOGD("%s called.\n", __func__ );
+}
+
 static void force_all_standby(struct audio_device *adev)
 {
+    LOGD("%s called.\n", __func__ );
     struct stream_in *in;
     struct stream_out *out;
 
@@ -556,7 +645,7 @@ static void select_mode(struct audio_device *adev)
             select_output_device(adev);
             start_call(adev);
             ril_set_call_clock_sync(&adev->ril, SOUND_CLOCK_START);
-            adev_set_voice_volume(&adev->hw_device, adev->voice_volume);
+            //adev_set_voice_volume(&adev->hw_device, adev->voice_volume);
             adev->in_call = 1;
         }
     } else {
@@ -580,9 +669,133 @@ static void select_output_device(struct audio_device *adev)
     int speaker_on;
     int earpiece_on;
     int bt_on;
+    int dl1_on;
     int sidetone_capture_on = 0;
     bool tty_volume = false;
     unsigned int channel;
+
+    headset_on = adev->devices & AUDIO_DEVICE_OUT_WIRED_HEADSET;
+    headphone_on = adev->devices & AUDIO_DEVICE_OUT_WIRED_HEADPHONE;
+    speaker_on = adev->devices & AUDIO_DEVICE_OUT_SPEAKER;
+    earpiece_on = adev->devices & AUDIO_DEVICE_OUT_EARPIECE;
+    bt_on = adev->devices & AUDIO_DEVICE_OUT_ALL_SCO;
+
+    /* force rx path according to TTY mode when in call */
+    if (adev->mode == AUDIO_MODE_IN_CALL && !bt_on) {
+        switch(adev->tty_mode) {
+            case TTY_MODE_FULL:
+            case TTY_MODE_VCO:
+                /* rx path to headphones */
+                headphone_on = 1;
+                headset_on = 0;
+                speaker_on = 0;
+                earpiece_on = 0;
+                tty_volume = true;
+                break;
+            case TTY_MODE_HCO:
+                /* rx path to device speaker */
+                headphone_on = 0;
+                headset_on = 0;
+                speaker_on = 1;
+                earpiece_on = 0;
+                break;
+            case TTY_MODE_OFF:
+            default:
+                /* force speaker on when in call and HDMI is selected as voice DL audio
+                 * cannot be routed to HDMI by ABE */
+                if (adev->devices & AUDIO_DEVICE_OUT_AUX_DIGITAL)
+                    speaker_on = 1;
+                break;
+        }
+    }
+
+    dl1_on = headset_on | headphone_on | earpiece_on | bt_on;
+
+    /* Select front end */
+    //mixer_ctl_set_value(adev->mixer_ctls.mm_dl2, 0, speaker_on);
+    //mixer_ctl_set_value(adev->mixer_ctls.vx_dl2, 0,
+    //                    speaker_on && (adev->mode == AUDIO_MODE_IN_CALL));
+    //mixer_ctl_set_value(adev->mixer_ctls.mm_dl1, 0, dl1_on);
+    //mixer_ctl_set_value(adev->mixer_ctls.vx_dl1, 0,
+    //                    dl1_on && (adev->mode == AUDIO_MODE_IN_CALL));
+    /* Select back end */
+    //mixer_ctl_set_value(adev->mixer_ctls.dl1_headset, 0,
+    //                    headset_on | headphone_on | earpiece_on);
+    //mixer_ctl_set_value(adev->mixer_ctls.dl1_bt, 0, bt_on);
+    //mixer_ctl_set_value(adev->mixer_ctls.dl2_mono, 0,
+    //                    (adev->mode != AUDIO_MODE_IN_CALL) && speaker_on);
+    //mixer_ctl_set_value(adev->mixer_ctls.earpiece_enable, 0, earpiece_on);
+
+    /* select output stage */
+    //set_route_by_array(adev->mixer, hp_output, headset_on | headphone_on);
+    //set_route_by_array(adev->mixer, spk_output, speaker_on);
+
+    //set_eq_filter(adev);
+    //set_output_volumes(adev, tty_volume);
+
+    /* Special case: select input path if in a call, otherwise
+       in_set_parameters is used to update the input route
+       todo: use sub mic for handsfree case */
+    if (adev->mode == AUDIO_MODE_IN_CALL) {
+        if (bt_on) {
+            LOGD("AUDIO_MODE_IN_CALL\n");
+            //set_route_by_array(adev->mixer, vx_ul_bt, bt_on);
+       } else {
+            /* force tx path according to TTY mode when in call */
+            switch(adev->tty_mode) {
+                case TTY_MODE_FULL:
+                case TTY_MODE_HCO:
+                    /* tx path from headset mic */
+                    headphone_on = 0;
+                    headset_on = 1;
+                    speaker_on = 0;
+                    earpiece_on = 0;
+                    break;
+                case TTY_MODE_VCO:
+                    /* tx path from device sub mic */
+                    headphone_on = 0;
+                    headset_on = 0;
+                    speaker_on = 1;
+                    earpiece_on = 0;
+                    break;
+                case TTY_MODE_OFF:
+                default:
+                    break;
+            }
+
+            if (headset_on || headphone_on || earpiece_on) {
+                LOGD("stub\n");
+                //set_route_by_array(adev->mixer, vx_ul_amic_left, 1);
+            } else if (speaker_on) {
+                LOGD("stub\n");
+                //set_route_by_array(adev->mixer, vx_ul_amic_right, 1);
+            } else {
+                LOGD("stub\n");
+                //set_route_by_array(adev->mixer, vx_ul_amic_left, 0);
+            }
+            //mixer_ctl_set_enum_by_string(adev->mixer_ctls.left_capture,
+            //                            (earpiece_on || headphone_on) ? MIXER_MAIN_MIC :
+            //                            (headset_on ? MIXER_HS_MIC : "Off"));
+            //mixer_ctl_set_enum_by_string(adev->mixer_ctls.right_capture,
+            //                             speaker_on ? MIXER_SUB_MIC : "Off");
+
+            set_input_volumes(adev, earpiece_on || headphone_on,
+                              headset_on, speaker_on);
+
+            /* enable sidetone mixer capture if needed */
+            //sidetone_capture_on = earpiece_on && adev->device_is_toro;
+        }
+
+        set_incall_device(adev);
+
+        /* Unmute VX_UL after the switch */
+        for (channel = 0; channel < 2; channel++) {
+            //mixer_ctl_set_value(adev->mixer_ctls.voice_ul_volume,
+            //                    channel, MIXER_ABE_GAIN_0DB);
+        }
+    }
+
+    //mixer_ctl_set_value(adev->mixer_ctls.sidetone_capture, 0, sidetone_capture_on);
 }
 
 static void select_input_device(struct audio_device *adev)
@@ -613,7 +826,7 @@ static int start_output_stream(struct stream_out *out)
     out->config.avail_min = LONG_PERIOD_SIZE;
     out->low_power = 1;
 
-    out->pcm = pcm_open(card, port, PCM_OUT | PCM_MMAP | PCM_NOIRQ, &out->config);
+    //out->pcm = pcm_open(card, port, PCM_OUT | PCM_MMAP | PCM_NOIRQ, &out->config);
 
     if (!pcm_is_ready(out->pcm)) {
         LOGE("cannot open pcm_out driver: %s", pcm_get_error(out->pcm));
@@ -636,8 +849,20 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
     int ret;
 
     out = (struct stream_out *)calloc(1, sizeof(struct stream_out));
-    if (!out)
+    if (!out) {
+        LOGD("couldn't allocate memory.");
         return -ENOMEM;
+    }
+
+    ret = create_resampler(DEFAULT_OUT_SAMPLING_RATE,
+                           MM_FULL_POWER_SAMPLING_RATE,
+                           2,
+                           RESAMPLER_QUALITY_DEFAULT,
+                           NULL,
+                           &out->resampler);
+    if (ret != 0)
+        goto err_open;
+    out->buffer = malloc(RESAMPLER_BUFFER_SIZE); /* todo: allow for reallocing */
 
     out->stream.common.get_sample_rate = out_get_sample_rate;
     out->stream.common.set_sample_rate = out_set_sample_rate;
@@ -655,6 +880,23 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
     out->stream.set_volume = out_set_volume;
     out->stream.write = out_write;
     out->stream.get_render_position = out_get_render_position;
+
+    out->config = pcm_config_mm;
+
+    out->dev = ladev;
+    out->standby = 1;
+
+    /* FIXME: when we support multiple output devices, we will want to
+     * do the following:
+     * adev->devices &= ~AUDIO_DEVICE_OUT_ALL;
+     * adev->devices |= out->device;
+     * select_output_device(adev);
+     * This is because out_set_parameters() with a route is not
+     * guaranteed to be called after an output stream is opened. */
+
+    *format = out_get_format(&out->stream.common);
+    *channels = out_get_channels(&out->stream.common);
+    *sample_rate = out_get_sample_rate(&out->stream.common);
 
     *stream_out = &out->stream;
     return 0;
@@ -695,8 +937,8 @@ static int adev_init_check(const struct audio_hw_device *dev)
 static int adev_set_voice_volume(struct audio_hw_device *dev, float volume)
 {
     LOGD("%s called.\n", __func__ );
-    // connectRILDIfRequired()
-    return -ENOSYS;
+
+    return 0;
 }
 
 static int adev_set_master_volume(struct audio_hw_device *dev, float volume)
@@ -1084,7 +1326,10 @@ static int adev_open(const hw_module_t* module, const char* name,
     set_route_by_array(adev->mixer, defaults, 1);
     adev->mode = AUDIO_MODE_NORMAL;
     adev->devices = AUDIO_DEVICE_OUT_SPEAKER | AUDIO_DEVICE_IN_BUILTIN_MIC;
-    //select_output_device(adev);
+    select_output_device(adev);
+
+    adev->pcm_modem_dl = NULL;
+    adev->pcm_modem_ul = NULL;
 
     /* RIL */
     ril_open(&adev->ril);
