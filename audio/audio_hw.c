@@ -43,6 +43,26 @@
 #include "ril_interface.h"
 
 /* Common defines */
+
+/* constraint imposed by ABE: all period sizes must be multiples of 24 */
+#define ABE_BASE_FRAME_COUNT 24
+/* number of base blocks in a short period (low latency) */
+#define SHORT_PERIOD_MULTIPLIER 44  /* 22 ms */
+/* number of frames per short period (low latency) */
+#define SHORT_PERIOD_SIZE (ABE_BASE_FRAME_COUNT * SHORT_PERIOD_MULTIPLIER)
+/* number of short periods in a long period (low power) */
+#define LONG_PERIOD_MULTIPLIER 14  /* 308 ms */
+/* number of frames per long period (low power) */
+#define LONG_PERIOD_SIZE (SHORT_PERIOD_SIZE * LONG_PERIOD_MULTIPLIER)
+/* number of periods for low power playback */
+#define PLAYBACK_LONG_PERIOD_COUNT 2
+/* number of pseudo periods for low latency playback */
+#define PLAYBACK_SHORT_PERIOD_COUNT 4
+/* number of periods for capture */
+#define CAPTURE_PERIOD_COUNT 2
+/* minimum sleep time in out_write() when write threshold is not reached */
+#define MIN_WRITE_SLEEP_US 5000
+
 #define DEFAULT_OUT_SAMPLING_RATE 44100
 /* sampling rate when using VX port for narrow band */
 #define VX_NB_SAMPLING_RATE 8000
@@ -52,6 +72,9 @@
 
 /* ALSA cards for MC1N2 */
 #define CARD_MC1N2_DEFAULT      0
+
+/* Ports for MC1N2 */
+#define PORT_MM 0
 
 struct audio_device {
     struct audio_hw_device hw_device;
@@ -524,6 +547,41 @@ static void select_output_device(struct audio_device *adev)
 static void select_input_device(struct audio_device *adev)
 {
     LOGD("%s called.\n", __func__ );
+}
+
+/* must be called with hw device and output stream mutexes locked */
+static int start_output_stream(struct stream_out *out)
+{
+    LOGD("%s called.\n", __func__ );
+    struct audio_device *adev = out->dev;
+    unsigned int card = CARD_MC1N2_DEFAULT;
+    unsigned int port = PORT_MM;
+
+    adev->active_output = out;
+
+    if (adev->mode != AUDIO_MODE_IN_CALL) {
+        /* FIXME: only works if only one output can be active at a time */
+        select_output_device(adev);
+    }
+   
+    /* default to low power: will be corrected in out_write if necessary before first write to
+     * tinyalsa.
+     */
+    out->write_threshold = PLAYBACK_LONG_PERIOD_COUNT * LONG_PERIOD_SIZE;
+    out->config.start_threshold = SHORT_PERIOD_SIZE * 2;
+    out->config.avail_min = LONG_PERIOD_SIZE;
+    out->low_power = 1;
+
+    out->pcm = pcm_open(card, port, PCM_OUT | PCM_MMAP | PCM_NOIRQ, &out->config);
+
+    if (!pcm_is_ready(out->pcm)) {
+        LOGE("cannot open pcm_out driver: %s", pcm_get_error(out->pcm));
+        pcm_close(out->pcm);
+        adev->active_output = NULL;
+        return -ENOMEM;
+    }
+
+    return 0;
 }
 
 static int adev_open_output_stream(struct audio_hw_device *dev,
