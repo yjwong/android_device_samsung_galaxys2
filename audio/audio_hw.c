@@ -78,7 +78,6 @@
 /* sampling rate when using VX port for wide band */
 #define VX_WB_SAMPLING_RATE 16000
 
-
 /* ALSA cards for MC1N2 */
 #define CARD_MC1N2_DEFAULT      0
 
@@ -92,12 +91,11 @@ enum tty_modes {
     TTY_MODE_FULL
 };
 
-
-struct pcm_config pcm_config_mm = {
+struct pcm_config pcm_config_default = {
     .channels = 2,
-    .rate = MM_FULL_POWER_SAMPLING_RATE,
-    .period_size = LONG_PERIOD_SIZE,
-    .period_count = PLAYBACK_LONG_PERIOD_COUNT,
+    .rate = 16000,
+    .period_size = 100,
+    .period_count = 2,
     .format = PCM_FORMAT_S16_LE,
 };
 struct pcm_config pcm_config_vx = {
@@ -956,7 +954,7 @@ static int start_output_stream(struct stream_out *out)
     out->config.start_threshold = SHORT_PERIOD_SIZE * 2;
     out->config.avail_min = LONG_PERIOD_SIZE;
     out->low_power = 1;
-
+    
     out->pcm = pcm_open(card, port, PCM_OUT | PCM_MMAP | PCM_NOIRQ, &out->config);
 
     if (!pcm_is_ready(out->pcm)) {
@@ -1012,7 +1010,7 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
     out->stream.write = out_write;
     out->stream.get_render_position = out_get_render_position;
 
-    out->config = pcm_config_mm;
+    out->config = pcm_config_default;
 
     out->dev = ladev;
     out->standby = 1;
