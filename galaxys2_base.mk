@@ -33,12 +33,6 @@ PRODUCT_COPY_FILES += \
 	development/data/etc/apns-conf.xml:system/etc/apns-conf.xml \
 	device/samsung/galaxys2/configs/spn-conf.xml:system/etc/spn-conf.xml
 
-# Audio
-# soundbooster.txt - needs to be at /data/soundbooster.txt
-PRODUCT_COPY_FILES += \
-	device/samsung/galaxys2/configs/asound.conf:system/etc/asound.con \
-	device/samsung/galaxys2/configs/soundbooster.txt:system/etc/audio/soundbooster.txt
-
 # Touchscreen
 PRODUCT_COPY_FILES += \
 	device/samsung/galaxys2/configs/sec_ts_ics_bio.idc:system/usr/idc/sec_ts_ics_bio.idc
