@@ -20,9 +20,13 @@
 
 #include <errno.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/errno.h>
 
 #include <cutils/log.h>
 #include <cutils/str_parms.h>
@@ -39,7 +43,6 @@
 #include <audio_effects/effect_aec.h>
 
 #include "audio_hw.h"
-#include "hwdep.h"
 #include "ril_interface.h"
 
 /* Common defines */
@@ -84,6 +87,9 @@
 /* Ports for MC1N2 */
 #define PORT_DEFAULT    0
 
+// hwdep mutex
+static pthread_mutex_t hwdep_mutex;
+
 enum tty_modes {
     TTY_MODE_OFF,
     TTY_MODE_VCO,
@@ -93,7 +99,7 @@ enum tty_modes {
 
 struct pcm_config pcm_config_default = {
     .channels = 2,
-    .rate = 16000,
+    .rate = 48000,
     .period_size = 100,
     .period_count = 2,
     .format = PCM_FORMAT_S16_LE,
@@ -177,6 +183,9 @@ struct stream_in {
  *        hw device > in stream > out stream
  */
 
+static int hwdep_open();
+static int hwdep_close(int fd);
+static int hwdep_ioctl(int fd, int request, struct mc1n2_ctrl_args *args);
 static void select_output_device(struct audio_device *adev);
 static void select_input_device(struct audio_device *adev);
 static int adev_set_voice_volume(struct audio_hw_device *dev, float volume);
@@ -184,6 +193,8 @@ static int do_input_standby(struct stream_in *in);
 static int do_output_standby(struct stream_out *out);
 static int start_output_stream(struct stream_out *out);
 static int get_playback_delay(struct stream_out *out, size_t frames, struct echo_reference_buffer *buffer);
+
+
 
 /* The enable flag when 0 makes the assumption that enums are disabled by
  * "Off" and integers/booleans by 0 */
@@ -417,6 +428,7 @@ static ssize_t out_write(struct audio_stream_out *stream, const void* buffer,
     pthread_mutex_unlock(&adev->lock);
 
     if (low_power != out->low_power) {
+        LOGD("low_power != out->low_power\n");
         if (low_power) {
             out->write_threshold = LONG_PERIOD_SIZE * PLAYBACK_LONG_PERIOD_COUNT;
             out->config.avail_min = LONG_PERIOD_SIZE;
@@ -430,6 +442,7 @@ static ssize_t out_write(struct audio_stream_out *stream, const void* buffer,
 
     /* only use resampler if required */
     if (out->config.rate != DEFAULT_OUT_SAMPLING_RATE) {
+        LOGD("resampler required\n");
         out->resampler->resample_from_input(out->resampler,
                                             (int16_t *)buffer,
                                             &in_frames,
@@ -441,6 +454,7 @@ static ssize_t out_write(struct audio_stream_out *stream, const void* buffer,
         buf = (void *)buffer;
     }
     if (out->echo_reference != NULL) {
+        LOGD("echo_reference\n");
         struct echo_reference_buffer b;
         b.raw = (void *)buffer;
         b.frame_count = in_frames;
@@ -470,6 +484,7 @@ static ssize_t out_write(struct audio_stream_out *stream, const void* buffer,
     ret = pcm_mmap_write(out->pcm, (void *)buf, out_frames * frame_size);
 
 exit:
+    LOGE("%s exit called.\n", __func__ );
     pthread_mutex_unlock(&out->lock);
 
     if (ret != 0) {
@@ -957,6 +972,49 @@ static int start_output_stream(struct stream_out *out)
     
     out->pcm = pcm_open(card, port, PCM_OUT | PCM_MMAP | PCM_NOIRQ, &out->config);
 
+
+
+    LOGD("%s: adev->mode = %d.\n", __func__, adev->mode);
+
+    /* system/core/include/system/audio.h
+
+    adev->mode
+
+    AUDIO_MODE_INVALID          = -2,
+    AUDIO_MODE_CURRENT          = -1,
+    AUDIO_MODE_NORMAL           = 0,
+    AUDIO_MODE_RINGTONE         = 1,
+    AUDIO_MODE_IN_CALL          = 2,
+    AUDIO_MODE_IN_COMMUNICATION = 3,
+
+    */
+
+    // codeworkx experimental: start media. 
+    // TODO: needs to be stopped after playback finish.
+    if (adev->mode == AUDIO_MODE_NORMAL || adev->mode ==  AUDIO_MODE_RINGTONE) {
+        LOGD("We're on normal mode, let's inform hw about media playback.\n");       
+
+        int hwdep_fd, hwdep_ret, hwdep_request;
+        struct mc1n2_ctrl_args hwdep_args;
+
+        // hwdep request and command
+        hwdep_request = MC1N2_IOCTL_NOTIFY;
+        hwdep_args.dCmd = MCDRV_NOTIFY_MEDIA_PLAY_START;
+
+        // open hwdep device
+        hwdep_fd = hwdep_open();
+
+        // hwdep ioctl
+        hwdep_ret = hwdep_ioctl(hwdep_fd, hwdep_request, &hwdep_args);
+        LOGD("MCDRV_NOTIFY_MEDIA_PLAY_START returned %d.\n", hwdep_ret);
+
+        // close hwdep device
+        hwdep_ret = hwdep_close(hwdep_fd);
+
+    }
+    // end of codeworkx experimental: start media. 
+
+
     if (!pcm_is_ready(out->pcm)) {
         LOGE("cannot open pcm_out driver: %s", pcm_get_error(out->pcm));
         pcm_close(out->pcm);
@@ -1202,10 +1260,56 @@ static uint32_t adev_get_supported_devices(const struct audio_hw_device *dev)
             AUDIO_DEVICE_IN_DEFAULT);
 }
 
-/*
-*   RIL
-*/
+/* HW Dependant */
+static int hwdep_open()
+{
+    int fd, ret;
 
+	LOGD("hwdep_open() called\n");
+
+    pthread_mutex_lock(&hwdep_mutex);
+    fd = open(HWDEP_DEVICE, O_RDWR);
+
+    if(fd < 0) 
+    {
+        LOGE("hwdep_open(): failed on opening /dev/snd/hwC0D0\n");
+        return -EBUSY;
+    } 
+    else 
+    {
+        LOGV("hwdep_open(): successfully opened /dev/snd/hwC0D0\n");
+        return fd;
+    }
+
+    return -1;
+}
+
+static int hwdep_close(int fd)
+{
+    close(fd);
+    pthread_mutex_unlock(&hwdep_mutex);
+
+    return 0;
+}
+
+static int hwdep_ioctl(int fd, int request, struct mc1n2_ctrl_args *args)
+{
+    int ret;
+
+    ret = ioctl(fd, request, args);
+
+    if(ret < 0) 
+    {
+        LOGE("hwdep_ioctl(): ioctl %d failed\n", request);
+    } 
+    else 
+    {
+        LOGV("hwdep_ioctl(): ioctl %d success\n", request);
+    }
+
+    return ret;
+}
+/* End of HW Dependant */
 
 
 static int adev_open(const hw_module_t* module, const char* name,
