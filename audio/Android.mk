@@ -25,8 +25,7 @@ LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
 
 LOCAL_SRC_FILES := \
     audio_hw.c \
-    ril_interface.c \
-    hwdep.c
+    ril_interface.c
 
 LOCAL_C_INCLUDES += \
 	external/tinyalsa/include \
