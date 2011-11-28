@@ -99,9 +99,9 @@ enum tty_modes {
 
 struct pcm_config pcm_config_default = {
     .channels = 2,
-    .rate = 48000,
-    .period_size = 100,
-    .period_count = 2,
+    .rate = 44100,
+    .period_size = 512,
+    .period_count = 8,
     .format = PCM_FORMAT_S16_LE,
 };
 struct pcm_config pcm_config_vx = {
