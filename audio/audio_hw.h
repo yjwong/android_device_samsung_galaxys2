@@ -17,11 +17,13 @@
 
 
 /* MC1N2 Mixer Controls */
-#define MIXER_MASTER_PLAYBACK_SWITCH            "Master Playback Switch"
+// terms: http://www.mackie.com/pdf/glossary.pdf and http://en.wikipedia.org/wiki/McASP
+
+#define MIXER_MASTER_PLAYBACK_SWITCH            "Master Playback Switch"		// MASTER
 #define MIXER_MASTER_PLAYBACK_VOLUME            "Master Playback Volume"
-#define MIXER_HEADPHONE_PLAYBACK_SWITCH         "Headphone Playback Switch"
+#define MIXER_HEADPHONE_PLAYBACK_SWITCH         "Headphone Playback Switch"		// HEADPHONE MASTER
 #define MIXER_HEADPHONE_PLAYBACK_VOLUME         "Headphone Playback Volume"
-#define MIXER_LINE1_PLAYBACK_SWITCH             "Line 1 Playback Switch"
+#define MIXER_LINE1_PLAYBACK_SWITCH             "Line 1 Playback Switch"		// LINE MASTER
 #define MIXER_LINE1_PLAYBACK_VOLUME             "Line 1 Playback Volume"
 #define MIXER_LINE2_PLAYBACK_SWITCH             "Line 2 Playback Switch"
 #define MIXER_LINE2_PLAYBACK_VOLUME             "Line 2 Playback Volume"
@@ -36,8 +38,8 @@
 #define MIXER_MIC3_BYPASS_PLAYBACK_SWITCH       "Mic 3 Bypass Playback Switch"
 #define MIXER_MIC3_BYPASS_PLAYBACK_VOLUME       "Mic 3 Bypass Playback Volume"
 #define MIXER_MIC3_GAIN_VOLUME                  "Mic 3 Gain Volume"
-#define MIXER_ADCL_PDM_SEL                      "ADC PDM SEL"
-#define MIXER_ADCL_LINE_MIXMODE                 "ADCL LINE MIXMODE"
+#define MIXER_ADCL_PDM_SEL                      "ADC PDM SEL"					// ANALOG TO DIGITAL CONVERTER PULSE DENSITY MODULATION
+#define MIXER_ADCL_LINE_MIXMODE                 "ADCL LINE MIXMODE"				// ANALOG TO DIGITAL CONVERTER
 #define MIXER_ADCL_MIXER_LINE_SWITCH            "ADCL MIXER Line Switch"
 #define MIXER_ADCL_MIXER_MIC1_SWITCH            "ADCL MIXER Mic1 Switch"
 #define MIXER_ADCL_MIXER_MIC2_SWITCH            "ADCL MIXER Mic2 Switch"
@@ -52,21 +54,21 @@
 #define MIXER_AD_ANALOG_SWITCH                  "AD Analog Switch"
 #define MIXER_AD_ANALOG_VOLUME                  "AD Analog Volume"
 #define MIXER_AD_DIGITAL_SWITCH                 "AD Digital Switch"
-#define MIXER_AD_DIGITAL_VOLUME                 "AD Digital Volume"
-#define MIXER_AE_PARAMETER_SEL                  "AE PARAMETER SEL"
+#define MIXER_AD_DIGITAL_VOLUME                 "AD Digital Volume"				// ANALOG TO DIGITAL CONVERTER
+#define MIXER_AE_PARAMETER_SEL                  "AE PARAMETER SEL"				
 #define MIXER_AE_SRC                            "AE SRC"
 #define MIXER_AENG6_SWITCH                      "AENG6 Switch"
 #define MIXER_AENG6_VOLUME                      "AENG6 Volume"
 #define MIXER_CODEC_STATUS                      "Codec Status"
-#define MIXER_DAC_PLAYBACK_SWITCH               "DAC Playback Switch"
+#define MIXER_DAC_PLAYBACK_SWITCH               "DAC Playback Switch"			// DIGITAL TO ANALOG CONVERTER
 #define MIXER_DAC_PLAYBACK_VOLUME               "DAC Playback Volume"
 #define MIXER_DACMAIN_SRC                       "DACMAIN SRC"
 #define MIXER_DACVOICE_SRC                      "DACVOICE SRC"
 #define MIXER_DIGITAL_MIXER_ADC_SWITCH          "DIGITAL MIXER Adc Switch"
 #define MIXER_DIGITAL_MIXER_DIR0_SWITCH         "DIGITAL MIXER Dir0 Switch"
 #define MIXER_DIGITAL_MIXER_DIR1_SWITCH         "DIGITAL MIXER Dir1 Switch"
-#define MIXER_DIGITAL_MIXER_DIR2_SWITCH         "DIGITAL MIXER Dir2 Switch"
-#define MIXER_DIR0_ATT_SWITCH                   "DIR#0 ATT Switch"
+#define MIXER_DIGITAL_MIXER_DIR2_SWITCH         "DIGITAL MIXER Dir2 Switch"		// DIGITAL TO ANALOG CONVERTER
+#define MIXER_DIR0_ATT_SWITCH                   "DIR#0 ATT Switch"				// EXTERNAL DIGITAL AUDIO INTERFACE RECEIVER
 #define MIXER_DIR0_ATT_VOLUME                   "DIR#0 ATT Volume"
 #define MIXER_DIR0_SWITCH                       "DIR#0 Switch"
 #define MIXER_DIR0_VOLUME                       "DIR#0 Volume"
@@ -77,8 +79,8 @@
 #define MIXER_DIR2_ATT_SWITCH                   "DIR#2 ATT Switch"
 #define MIXER_DIR2_ATT_VOLUME                   "DIR#2 ATT Volume"
 #define MIXER_DIR2_SWITCH                       "DIR#2 Switch"
-#define MIXER_DIR2_VOLUME                       "DIR#2 Volume"
-#define MIXER_DIT0_CAPTURE_SWITCH               "DIT#0 Capture Switch"
+#define MIXER_DIR2_VOLUME                       "DIR#2 Volume"					// EXTERNAL DIGITAL AUDIO INTERFACE RECEIVER
+#define MIXER_DIT0_CAPTURE_SWITCH               "DIT#0 Capture Switch"			// DIGITAL AUDIO INTERFACE TRANSMISSION
 #define MIXER_DIT0_CAPTURE_VOLUME               "DIT#0 Capture Volume"
 #define MIXER_DIT1_CAPTURE_SWITCH               "DIT#1 Capture Switch"
 #define MIXER_DIT1_CAPTURE_VOLUME               "DIT#1 Capture Volume"
@@ -86,8 +88,8 @@
 #define MIXER_DIT2_CAPTURE_VOLUME               "DIT#2 Capture Volume"
 #define MIXER_DIT0_SRC                          "DIT0 SRC"
 #define MIXER_DIT1_SRC                          "DIT1 SRC"
-#define MIXER_DIT2_SRC                          "DIT2 SRC"
-#define MIXER_HP_GAIN_PLAYBACK_VOLUME           "HP Gain Playback Volume"
+#define MIXER_DIT2_SRC                          "DIT2 SRC"						// DIGITAL AUDIO INTERFACE TRANSMISSION
+#define MIXER_HP_GAIN_PLAYBACK_VOLUME           "HP Gain Playback Volume"		// HEADPHONE
 #define MIXER_HPL_DAC_MIXMODE                   "HPL DAC MIXMODE"
 #define MIXER_HPL_LINE_MIXMODE                  "HPL LINE MIXMODE"
 #define MIXER_HPL_MIXER_DAC_SWITCH              "HPL MIXER Dac Switch"
@@ -99,8 +101,8 @@
 #define MIXER_HPR_MIXER_LINER_SWITCH            "HPR MIXER LineR Switch"
 #define MIXER_HPR_MIXER_MIC1_SWITCH             "HPR MIXER Mic1 Switch"
 #define MIXER_HPR_MIXER_MIC2_SWITCH             "HPR MIXER Mic2 Switch"
-#define MIXER_HPR_MIXER_MIC3_SWITCH             "HPR MIXER Mic3 Switch"
-#define MIXER_LINEOUT1L_DAC_MIXMODE             "LINEOUT1L DAC MIXMODE"
+#define MIXER_HPR_MIXER_MIC3_SWITCH             "HPR MIXER Mic3 Switch"			// HEADPHONE
+#define MIXER_LINEOUT1L_DAC_MIXMODE             "LINEOUT1L DAC MIXMODE"			// LINEOUT
 #define MIXER_LINEOUT1L_LINE_MIXMODE            "LINEOUT1L LINE MIXMODE"
 #define MIXER_LINEOUT1L_MIXER_DAC_SWITCH        "LINEOUT1L MIXER Dac Switch"
 #define MIXER_LINEOUT1L_MIXER_LINE_SWITCH       "LINEOUT1L MIXER Line Switch"
@@ -123,13 +125,13 @@
 #define MIXER_LINEOUT2R_MIXER_LINER_SWITCH      "LINEOUT2R MIXER LineR Switch"
 #define MIXER_LINEOUT2R_MIXER_MIC1_SWITCH       "LINEOUT2R MIXER Mic1 Switch"
 #define MIXER_LINEOUT2R_MIXER_MIC2_SWITCH       "LINEOUT2R MIXER Mic2 Switch"
-#define MIXER_LINEOUT2R_MIXER_MIC3_SWITCH       "LINEOUT2R MIXER Mic3 Switch"
+#define MIXER_LINEOUT2R_MIXER_MIC3_SWITCH       "LINEOUT2R MIXER Mic3 Switch"	// LINEOUT
 #define MIXER_MB1_SWITCH                        "MB1 Switch"
 #define MIXER_MB2_SWITCH                        "MB2 Switch"
 #define MIXER_MB3_SWITCH                        "MB3 Switch"
-#define MIXER_PDM_SWITCH                        "PDM Switch"
+#define MIXER_PDM_SWITCH                        "PDM Switch"					// PULSE DENSITY MODULATION
 #define MIXER_PDM_VOLUME                        "PDM Volume"
-#define MIXER_RC_MIXER_DACL_SWITCH              "RC MIXER DacL Switch"
+#define MIXER_RC_MIXER_DACL_SWITCH              "RC MIXER DacL Switch"			// RECEIVER
 #define MIXER_RC_MIXER_DACR_SWITCH              "RC MIXER DacR Switch"
 #define MIXER_RC_MIXER_LINEMONO_SWITCH          "RC MIXER LineMono Switch"
 #define MIXER_RC_MIXER_MIC1_SWITCH              "RC MIXER Mic1 Switch"
@@ -137,19 +139,19 @@
 #define MIXER_RC_MIXER_MIC3_SWITCH              "RC MIXER Mic3 Switch"
 #define MIXER_RECEIVER_PLAYBACK_SWITCH          "Receiver Playback Switch"
 #define MIXER_RECEIVER_PLAYBACK_VOLUME          "Receiver Playback Volume"
-#define MIXER_SPL_DAC_MIXMODE                   "SPL DAC MIXMODE"
+#define MIXER_SPL_DAC_MIXMODE                   "SPL DAC MIXMODE"				// SPEAKER LEFT
 #define MIXER_SPL_LINE_MIXMODE                  "SPL LINE MIXMODE"
 #define MIXER_SPL_MIXER_DAC_SWITCH              "SPL MIXER Dac Switch"
 #define MIXER_SPL_MIXER_LINE_SWITCH             "SPL MIXER Line Switch"
-#define MIXER_SPR_DAC_MIXMODE                   "SPR DAC MIXMODE"
+#define MIXER_SPR_DAC_MIXMODE                   "SPR DAC MIXMODE"				// SPEAKER RIGHT
 #define MIXER_SPR_LINE_MIXMODE                  "SPR LINE MIXMODE"
 #define MIXER_SPR_MIXER_DAC_SWITCH              "SPR MIXER Dac Switch"
 #define MIXER_SPR_MIXER_LINE_SWITCH             "SPR MIXER Line Switch"
-#define MIXER_SIDE_TONE_PLAYBACK_SWITCH         "Side Tone Playback Switch"
+#define MIXER_SIDE_TONE_PLAYBACK_SWITCH         "Side Tone Playback Switch"		// SIDETONE
 #define MIXER_SIDE_TONE_PLAYBACK_VOLUME         "Side Tone Playback Volume"
-#define MIXER_SPEAKER_PLAYBACK_SWITCH           "Speaker Playback Switch"
+#define MIXER_SPEAKER_PLAYBACK_SWITCH           "Speaker Playback Switch"		// SPEAKER
 #define MIXER_SPEAKER_PLAYBACK_VOLUME           "Speaker Playback Volume"
-#define MIXER_VOICE_PLAYBACK_SWITCH             "Voice Playback Switch"
+#define MIXER_VOICE_PLAYBACK_SWITCH             "Voice Playback Switch"			// VOICE
 #define MIXER_VOICE_PLAYBACK_VOLUME             "Voice Playback Volume"
 
 struct mixer_ctls
@@ -298,6 +300,10 @@ struct route_setting
 };
 
 /* route settings - these are values that never change */
+
+// TODO: add any mixer controls and values which have to be set
+//       on HAL initialize
+
 struct route_setting defaults[] = {
     /* general */
     {
@@ -358,7 +364,8 @@ struct route_setting defaults[] = {
     },
 };
 
-// speaker route settings
+// route settings while doing speaker playback
+// TODO: figure out which values have to be set
 struct route_setting spk_output[] = {
     {
         .ctl_name = MIXER_SPEAKER_PLAYBACK_SWITCH,
@@ -370,7 +377,8 @@ struct route_setting spk_output[] = {
     },
 };
 
-// headphone route settings
+// route settings while doing headphone playback
+// TODO: figure out which values have to be set
 struct route_setting hp_output[] = {
     {
         .ctl_name = MIXER_HEADPHONE_PLAYBACK_SWITCH,
@@ -385,6 +393,9 @@ struct route_setting hp_output[] = {
         .intval = 3,
     },
 };
+
+// TODO: add missing route settings for e.g. incall, earpiece, bluetooth
+
 /* end of route settings */
 
 /*

@@ -47,25 +47,20 @@
 
 /* Common defines */
 
-/* constraint imposed by ABE: all period sizes must be multiples of 24 */
-#define ABE_BASE_FRAME_COUNT 24
-/* number of base blocks in a short period (low latency) */
-#define SHORT_PERIOD_MULTIPLIER 44  /* 22 ms */
-/* number of frames per short period (low latency) */
-#define SHORT_PERIOD_SIZE (ABE_BASE_FRAME_COUNT * SHORT_PERIOD_MULTIPLIER)
-/* number of short periods in a long period (low power) */
-#define LONG_PERIOD_MULTIPLIER 14  /* 308 ms */
-/* number of frames per long period (low power) */
-#define LONG_PERIOD_SIZE (SHORT_PERIOD_SIZE * LONG_PERIOD_MULTIPLIER)
-/* number of periods for low power playback */
-#define PLAYBACK_LONG_PERIOD_COUNT 2
-/* number of pseudo periods for low latency playback */
-#define PLAYBACK_SHORT_PERIOD_COUNT 4
-/* number of periods for capture */
-#define CAPTURE_PERIOD_COUNT 2
-/* minimum sleep time in out_write() when write threshold is not reached */
-#define MIN_WRITE_SLEEP_US 5000
+// CAPTURE
+#define ABE_BASE_FRAME_COUNT 24 											/* constraint imposed by ABE: all period sizes must be multiples of 24 */
+#define SHORT_PERIOD_MULTIPLIER 44  										/* 22 ms, number of base blocks in a short period (low latency) */
+#define SHORT_PERIOD_SIZE (ABE_BASE_FRAME_COUNT * SHORT_PERIOD_MULTIPLIER)	/* number of frames per short period (low latency) */
+#define CAPTURE_PERIOD_COUNT 2												/* number of periods for capture */
 
+// PLAYBACK
+#define LONG_PERIOD_MULTIPLIER 22											/* 308 ms, number of short periods in a long period (low power) */
+#define LONG_PERIOD_SIZE (ABE_BASE_FRAME_COUNT * LONG_PERIOD_MULTIPLIER) 	/* number of frames per long period (low power) */
+#define PLAYBACK_LONG_PERIOD_COUNT 8 										/* number of periods for low power playback */
+#define PLAYBACK_SHORT_PERIOD_COUNT 4 										/* number of pseudo periods for low latency playback */
+
+
+#define MIN_WRITE_SLEEP_US 5000												/* minimum sleep time in out_write() when write threshold is not reached */
 
 #define RESAMPLER_BUFFER_FRAMES (SHORT_PERIOD_SIZE * 2)
 #define RESAMPLER_BUFFER_SIZE (4 * RESAMPLER_BUFFER_FRAMES)
@@ -98,13 +93,21 @@ enum tty_modes {
 };
 
 /* PCM Configs*/
+// TODO: set correct pcm config values, get from stock rom
+//       looks like if we set the config like on stock hal, something goes wrong. try & error should be the key
+//       LOG: obtain Buffer failed (is the CPU pegged?)
+//
+// stock values:
+// <6>[  463.827303] hw_params: [0] name=subdevice #0, dir=0, rate=44100, bits=2, ch=2
+// <4>[  463.827394] P:DmaAddr=@66060000 Total=16384bytes PrdSz=2048 #Prds=8, dmaEnd 0x66064000
+
 
 // playback
 struct pcm_config pcm_config_playback = {
     .channels = 2,
     .rate = 44100,
-    .period_size = 512,
-    .period_count = 8,
+    .period_size = LONG_PERIOD_SIZE,
+    .period_count = PLAYBACK_LONG_PERIOD_COUNT,
     .format = PCM_FORMAT_S16_LE,
 };
 
@@ -112,8 +115,8 @@ struct pcm_config pcm_config_playback = {
 struct pcm_config pcm_config_capture = {
     .channels = 2,
     .rate = 44100,
-    .period_size = 1024,
-    .period_count = 2,
+    .period_size = SHORT_PERIOD_SIZE,
+    .period_count = CAPTURE_PERIOD_COUNT,
     .format = PCM_FORMAT_S16_LE,
 };
 
