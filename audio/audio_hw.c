@@ -287,17 +287,25 @@ static int start_call(struct audio_device *adev)
     int hwdep_fd, hwdep_ret, hwdep_request;
     struct mc1n2_ctrl_args hwdep_args;
 
+    // open hwdep device
+    hwdep_fd = hwdep_open();
+
     // hwdep request and command
     hwdep_request = MC1N2_IOCTL_NOTIFY;
     hwdep_args.dCmd = MCDRV_NOTIFY_CALL_START;
 
-    // open hwdep device
-    hwdep_fd = hwdep_open();
-
-    // hwdep ioctl
+    // call start
     hwdep_ret = hwdep_ioctl(hwdep_fd, hwdep_request, &hwdep_args);
     LOGD("MCDRV_NOTIFY_CALL_START returned %d.\n", hwdep_ret);
-
+    
+    // hwdep request and command
+    hwdep_request = MC1N2_IOCTL_NOTIFY;
+    hwdep_args.dCmd = MCDRV_NOTIFY_2MIC_CALL_START;
+    
+    // two mic start
+    hwdep_ret = hwdep_ioctl(hwdep_fd, hwdep_request, &hwdep_args);
+    LOGD("MCDRV_NOTIFY_2MIC_CALL_START returned %d.\n", hwdep_ret);
+    
     // close hwdep device
     hwdep_ret = hwdep_close(hwdep_fd);
 
@@ -399,6 +407,7 @@ static int do_output_standby(struct stream_out *out)
         /* if in call, don't turn off the output stage. This will
         be done when the call is ended */
         if (adev->mode != AUDIO_MODE_IN_CALL) {
+			LOGD("%s TODO.\n", __func__ );
             /* FIXME: only works if only one output can be active at a time */
             //set_route_by_array(adev->mixer, hp_output, 0);
             //set_route_by_array(adev->mixer, spk_output, 0);
