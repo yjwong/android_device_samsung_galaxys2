@@ -764,6 +764,61 @@ static void force_all_standby(struct audio_device *adev)
     }
 }
 
+static int get_next_buffer(struct resampler_buffer_provider *buffer_provider,
+                                   struct resampler_buffer* buffer)
+{
+    struct stream_in *in;
+
+    if (buffer_provider == NULL || buffer == NULL)
+        return -EINVAL;
+
+    in = (struct stream_in *)((char *)buffer_provider -
+                                   offsetof(struct stream_in, buf_provider));
+
+    if (in->pcm == NULL) {
+        buffer->raw = NULL;
+        buffer->frame_count = 0;
+        in->read_status = -ENODEV;
+        return -ENODEV;
+    }
+
+    if (in->frames_in == 0) {
+        in->read_status = pcm_read(in->pcm,
+                                   (void*)in->buffer,
+                                   in->config.period_size *
+                                       audio_stream_frame_size(&in->stream.common));
+        if (in->read_status != 0) {
+            LOGE("get_next_buffer() pcm_read error %d", in->read_status);
+            buffer->raw = NULL;
+            buffer->frame_count = 0;
+            return in->read_status;
+        }
+        in->frames_in = in->config.period_size;
+    }
+
+    buffer->frame_count = (buffer->frame_count > in->frames_in) ?
+                                in->frames_in : buffer->frame_count;
+    buffer->i16 = in->buffer + (in->config.period_size - in->frames_in) *
+                                                in->config.channels;
+
+    return in->read_status;
+
+}
+
+static void release_buffer(struct resampler_buffer_provider *buffer_provider,
+                                  struct resampler_buffer* buffer)
+{
+    struct stream_in *in;
+
+    if (buffer_provider == NULL || buffer == NULL)
+        return;
+
+    in = (struct stream_in *)((char *)buffer_provider -
+                                   offsetof(struct stream_in, buf_provider));
+
+    in->frames_in -= buffer->frame_count;
+}
+
 static void select_mode(struct audio_device *adev)
 {
     LOGD("%s called.\n", __func__ );
@@ -1025,6 +1080,31 @@ static int start_output_stream(struct stream_out *out)
     return 0;
 }
 
+static int check_input_parameters(uint32_t sample_rate, int format, int channel_count)
+{
+    if (format != AUDIO_FORMAT_PCM_16_BIT)
+        return -EINVAL;
+
+    if ((channel_count < 1) || (channel_count > 2))
+        return -EINVAL;
+
+    switch(sample_rate) {
+    case 8000:
+    case 11025:
+    case 16000:
+    case 22050:
+    case 24000:
+    case 32000:
+    case 44100:
+    case 48000:
+        break;
+    default:
+        return -EINVAL;
+    }
+
+    return 0;
+}
+
 static int adev_open_output_stream(struct audio_hw_device *dev,
                                    uint32_t devices, int *format,
                                    uint32_t *channels, uint32_t *sample_rate,
@@ -1097,7 +1177,13 @@ err_open:
 static void adev_close_output_stream(struct audio_hw_device *dev,
                                      struct audio_stream_out *stream)
 {
-    LOGD("%s called.\n", __func__ );
+    struct stream_out *out = (struct stream_out *)stream;
+
+    out_standby(&stream->common);
+    if (out->buffer)
+        free(out->buffer);
+    if (out->resampler)
+        release_resampler(out->resampler);
     free(stream);
 }
 
@@ -1171,7 +1257,7 @@ static size_t adev_get_input_buffer_size(const struct audio_hw_device *dev,
 }
 
 static int adev_open_input_stream(struct audio_hw_device *dev, uint32_t devices,
-                                  int *format, uint32_t *channels,
+                                  int *format, uint32_t *channel_mask,
                                   uint32_t *sample_rate,
                                   audio_in_acoustics_t acoustics,
                                   struct audio_stream_in **stream_in)
@@ -1180,6 +1266,10 @@ static int adev_open_input_stream(struct audio_hw_device *dev, uint32_t devices,
     struct audio_device *ladev = (struct audio_device *)dev;
     struct stream_in *in;
     int ret;
+    int channel_count = popcount(*channel_mask);
+
+    if (check_input_parameters(*sample_rate, *format, channel_count) != 0)
+        return -EINVAL;
 
     in = (struct stream_in *)calloc(1, sizeof(struct stream_in));
     if (!in)
@@ -1201,19 +1291,65 @@ static int adev_open_input_stream(struct audio_hw_device *dev, uint32_t devices,
     in->stream.read = in_read;
     in->stream.get_input_frames_lost = in_get_input_frames_lost;
 
+    in->requested_rate = *sample_rate;
+
+	// TODO: create pcm config and use here
+    memcpy(&in->config, &pcm_config_default, sizeof(pcm_config_default));
+    in->config.channels = channel_count;
+
+    in->buffer = malloc(in->config.period_size *
+                        audio_stream_frame_size(&in->stream.common));
+    if (!in->buffer) {
+        ret = -ENOMEM;
+        goto err;
+    }
+
+    if (in->requested_rate != in->config.rate) {
+        in->buf_provider.get_next_buffer = get_next_buffer;
+        in->buf_provider.release_buffer = release_buffer;
+
+        ret = create_resampler(in->config.rate,
+                               in->requested_rate,
+                               in->config.channels,
+                               RESAMPLER_QUALITY_DEFAULT,
+                               &in->buf_provider,
+                               &in->resampler);
+        if (ret != 0) {
+            ret = -EINVAL;
+            goto err;
+        }
+    }
+
+    in->dev = ladev;
+    in->standby = 1;
+    in->device = devices;
+
     *stream_in = &in->stream;
     return 0;
 
-err_open:
+err:
+    if (in->resampler)
+        release_resampler(in->resampler);
+
     free(in);
     *stream_in = NULL;
     return ret;
 }
 
 static void adev_close_input_stream(struct audio_hw_device *dev,
-                                   struct audio_stream_in *in)
+                                   struct audio_stream_in *stream)
 {
     LOGD("%s called.\n", __func__ );
+    struct stream_in *in = (struct stream_in *)stream;
+
+    in_standby(&stream->common);
+
+    if (in->resampler) {
+        free(in->buffer);
+        release_resampler(in->resampler);
+    }
+
+    free(stream);
     return;
 }
 
@@ -1232,6 +1368,7 @@ static int adev_close(hw_device_t *device)
     /* RIL */
     ril_close(&adev->ril);
 
+    mixer_close(adev->mixer);
     free(device);
     return 0;
 }
