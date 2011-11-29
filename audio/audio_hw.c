@@ -282,6 +282,26 @@ static int start_call(struct audio_device *adev)
         }
     }
 
+      
+	// inform the audio hardware about starting a phone call
+    int hwdep_fd, hwdep_ret, hwdep_request;
+    struct mc1n2_ctrl_args hwdep_args;
+
+    // hwdep request and command
+    hwdep_request = MC1N2_IOCTL_NOTIFY;
+    hwdep_args.dCmd = MCDRV_NOTIFY_CALL_START;
+
+    // open hwdep device
+    hwdep_fd = hwdep_open();
+
+    // hwdep ioctl
+    hwdep_ret = hwdep_ioctl(hwdep_fd, hwdep_request, &hwdep_args);
+    LOGD("MCDRV_NOTIFY_CALL_START returned %d.\n", hwdep_ret);
+
+    // close hwdep device
+    hwdep_ret = hwdep_close(hwdep_fd);
+
+
     pcm_start(adev->pcm_modem_dl);
     pcm_start(adev->pcm_modem_ul);
 
@@ -300,6 +320,32 @@ err_open_dl:
 static void end_call(struct audio_device *adev)
 {
     LOGD("%s called.\n", __func__ );
+    
+    // inform the audio hardware about stoping a phone call
+    int hwdep_fd, hwdep_ret, hwdep_request;
+    struct mc1n2_ctrl_args hwdep_args;
+
+    // hwdep request and command
+    hwdep_request = MC1N2_IOCTL_NOTIFY;
+    hwdep_args.dCmd = MCDRV_NOTIFY_CALL_STOP;
+
+    // open hwdep device
+    hwdep_fd = hwdep_open();
+
+    // hwdep ioctl
+    hwdep_ret = hwdep_ioctl(hwdep_fd, hwdep_request, &hwdep_args);
+    LOGD("MCDRV_NOTIFY_CALL_STOP returned %d.\n", hwdep_ret);
+
+    // close hwdep device
+    hwdep_ret = hwdep_close(hwdep_fd);
+    
+    LOGE("Closing modem PCMs");
+    pcm_stop(adev->pcm_modem_dl);
+    pcm_stop(adev->pcm_modem_ul);
+    pcm_close(adev->pcm_modem_dl);
+    pcm_close(adev->pcm_modem_ul);
+    adev->pcm_modem_dl = NULL;
+    adev->pcm_modem_ul = NULL;
 }
 
 static uint32_t out_get_sample_rate(const struct audio_stream *stream)
