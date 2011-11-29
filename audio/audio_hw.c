@@ -989,26 +989,11 @@ static void select_output_device(struct audio_device *adev)
         }
     }
 
-    dl1_on = headset_on | headphone_on | earpiece_on | bt_on;
-
-    /* Select front end */
-    //mixer_ctl_set_value(adev->mixer_ctls.mm_dl2, 0, speaker_on);
-    //mixer_ctl_set_value(adev->mixer_ctls.vx_dl2, 0,
-    //                    speaker_on && (adev->mode == AUDIO_MODE_IN_CALL));
-    //mixer_ctl_set_value(adev->mixer_ctls.mm_dl1, 0, dl1_on);
-    //mixer_ctl_set_value(adev->mixer_ctls.vx_dl1, 0,
-    //                    dl1_on && (adev->mode == AUDIO_MODE_IN_CALL));
-    /* Select back end */
-    //mixer_ctl_set_value(adev->mixer_ctls.dl1_headset, 0,
-    //                    headset_on | headphone_on | earpiece_on);
-    //mixer_ctl_set_value(adev->mixer_ctls.dl1_bt, 0, bt_on);
-    //mixer_ctl_set_value(adev->mixer_ctls.dl2_mono, 0,
-    //                    (adev->mode != AUDIO_MODE_IN_CALL) && speaker_on);
-    //mixer_ctl_set_value(adev->mixer_ctls.earpiece_enable, 0, earpiece_on);
-
     /* select output stage */
-    //set_route_by_array(adev->mixer, hp_output, headset_on | headphone_on);
-    //set_route_by_array(adev->mixer, spk_output, speaker_on);
+    set_route_by_array(adev->mixer, hp_output, headset_on | headphone_on);
+    set_route_by_array(adev->mixer, spk_output, speaker_on);
+    set_route_by_array(adev->mixer, ear_output, earpiece_on);
+    set_route_by_array(adev->mixer, bt_output, bt_on);
 
     //set_eq_filter(adev);
     //set_output_volumes(adev, tty_volume);

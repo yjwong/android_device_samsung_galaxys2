@@ -364,19 +364,6 @@ struct route_setting defaults[] = {
     },
 };
 
-// route settings while doing speaker playback
-// TODO: figure out which values have to be set
-struct route_setting spk_output[] = {
-    {
-        .ctl_name = MIXER_SPEAKER_PLAYBACK_SWITCH,
-        .strval = "On",
-    },
-    {
-        .ctl_name = MIXER_SPEAKER_PLAYBACK_VOLUME,
-        .intval = 31,
-    },
-};
-
 // route settings while doing headphone playback
 // TODO: figure out which values have to be set
 struct route_setting hp_output[] = {
@@ -393,6 +380,46 @@ struct route_setting hp_output[] = {
         .intval = 3,
     },
 };
+
+// route settings while doing speaker playback
+// TODO: figure out which values have to be set
+struct route_setting spk_output[] = {
+    {
+        .ctl_name = MIXER_SPEAKER_PLAYBACK_SWITCH,
+        .strval = "On",
+    },
+    {
+        .ctl_name = MIXER_SPEAKER_PLAYBACK_VOLUME,
+        .intval = 31,
+    },
+};
+
+// route settings while doing earpiece playback
+// TODO: figure out which values have to be set
+struct route_setting ear_output[] = {
+    {
+        .ctl_name = MIXER_SPEAKER_PLAYBACK_SWITCH,
+        .strval = "On",
+    },
+    {
+        .ctl_name = MIXER_SPEAKER_PLAYBACK_VOLUME,
+        .intval = 31,
+    },
+};
+
+// route settings while doing bluetooth playback
+// TODO: figure out which values have to be set
+struct route_setting bt_output[] = {
+    {
+        .ctl_name = MIXER_SPEAKER_PLAYBACK_SWITCH,
+        .strval = "On",
+    },
+    {
+        .ctl_name = MIXER_SPEAKER_PLAYBACK_VOLUME,
+        .intval = 31,
+    },
+};
+
 
 // TODO: add missing route settings for e.g. incall, earpiece, bluetooth
 
