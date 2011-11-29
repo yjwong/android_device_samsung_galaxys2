@@ -97,16 +97,39 @@ enum tty_modes {
     TTY_MODE_FULL
 };
 
-struct pcm_config pcm_config_default = {
+/* PCM Configs*/
+
+// playback
+struct pcm_config pcm_config_playback = {
     .channels = 2,
     .rate = 44100,
     .period_size = 512,
     .period_count = 8,
     .format = PCM_FORMAT_S16_LE,
 };
-struct pcm_config pcm_config_vx = {
+
+// capture
+struct pcm_config pcm_config_capture = {
+    .channels = 2,
+    .rate = 44100,
+    .period_size = 1024,
+    .period_count = 2,
+    .format = PCM_FORMAT_S16_LE,
+};
+
+// narrow band
+struct pcm_config pcm_config_nb = {
     .channels = 2,
     .rate = VX_NB_SAMPLING_RATE,
+    .period_size = 160,
+    .period_count = 2,
+    .format = PCM_FORMAT_S16_LE,
+};
+
+// wide band
+struct pcm_config pcm_config_wb = {
+    .channels = 2,
+    .rate = VX_WB_SAMPLING_RATE,
     .period_size = 160,
     .period_count = 2,
     .format = PCM_FORMAT_S16_LE,
@@ -237,11 +260,11 @@ static int start_call(struct audio_device *adev)
     LOGD("%s called.\n", __func__ );
     LOGE("Opening PCM");
 
-    pcm_config_vx.rate = adev->wb_amr ? VX_WB_SAMPLING_RATE : VX_NB_SAMPLING_RATE;
+    pcm_config_wb.rate = adev->wb_amr ? VX_WB_SAMPLING_RATE : VX_NB_SAMPLING_RATE;
 
     /* Open modem PCM channels */
     if (adev->pcm_modem_dl == NULL) {
-        adev->pcm_modem_dl = pcm_open(0, PORT_DEFAULT, PCM_OUT, &pcm_config_vx);
+        adev->pcm_modem_dl = pcm_open(0, PORT_DEFAULT, PCM_OUT, &pcm_config_wb);
         if (!pcm_is_ready(adev->pcm_modem_dl)) {
             LOGE("cannot open PCM modem DL stream: %s", pcm_get_error(adev->pcm_modem_dl));
             goto err_open_dl;
@@ -249,7 +272,7 @@ static int start_call(struct audio_device *adev)
     }
 
     if (adev->pcm_modem_ul == NULL) {
-        adev->pcm_modem_ul = pcm_open(0, PORT_DEFAULT, PCM_IN, &pcm_config_vx);
+        adev->pcm_modem_ul = pcm_open(0, PORT_DEFAULT, PCM_IN, &pcm_config_wb);
         if (!pcm_is_ready(adev->pcm_modem_ul)) {
             LOGE("cannot open PCM modem UL stream: %s", pcm_get_error(adev->pcm_modem_ul));
             goto err_open_ul;
@@ -1148,7 +1171,7 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
     out->stream.write = out_write;
     out->stream.get_render_position = out_get_render_position;
 
-    out->config = pcm_config_default;
+    out->config = pcm_config_playback;
 
     out->dev = ladev;
     out->standby = 1;
@@ -1293,8 +1316,7 @@ static int adev_open_input_stream(struct audio_hw_device *dev, uint32_t devices,
 
     in->requested_rate = *sample_rate;
 
-	// TODO: create pcm config and use here
-    memcpy(&in->config, &pcm_config_default, sizeof(pcm_config_default));
+    memcpy(&in->config, &pcm_config_capture, sizeof(pcm_config_capture));
     in->config.channels = channel_count;
 
     in->buffer = malloc(in->config.period_size *
