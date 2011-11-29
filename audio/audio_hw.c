@@ -1025,6 +1025,44 @@ static void select_input_device(struct audio_device *adev)
     LOGD("%s called.\n", __func__ );
 }
 
+static int start_input_stream(struct stream_in *in)
+{
+    int ret = 0;
+    struct audio_device *adev = in->dev;
+    unsigned int card = CARD_MC1N2_DEFAULT;
+    unsigned int port = PORT_DEFAULT;
+
+    adev->active_input = in;
+
+    if (adev->mode != AUDIO_MODE_IN_CALL) {
+        adev->devices &= ~AUDIO_DEVICE_IN_ALL;
+        adev->devices |= in->device;
+        select_input_device(adev);
+    }
+
+    if (in->need_echo_reference && in->echo_reference == NULL)
+        in->echo_reference = get_echo_reference(adev,
+                                        AUDIO_FORMAT_PCM_16_BIT,
+                                        in->config.channels,
+                                        in->requested_rate);
+
+    /* this assumes routing is done previously */
+    in->pcm = pcm_open(card, port, PCM_IN, &in->config);
+    if (!pcm_is_ready(in->pcm)) {
+        LOGE("cannot open pcm_in driver: %s", pcm_get_error(in->pcm));
+        pcm_close(in->pcm);
+        adev->active_input = NULL;
+        return -ENOMEM;
+    }
+
+    /* if no supported sample rate is available, use the resampler */
+    if (in->resampler) {
+        in->resampler->reset(in->resampler);
+        in->frames_in = 0;
+    }
+    return 0;
+}
+
 /* must be called with hw device and output stream mutexes locked */
 static int start_output_stream(struct stream_out *out)
 {
