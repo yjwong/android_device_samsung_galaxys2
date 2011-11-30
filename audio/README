@@ -1,0 +1,99 @@
+HAL Start
+
+MIXER_DACMAIN_SRC
+MIXER_DACVOICE_SRC
+MIXER_SPEAKER_PLAYBACK_SWITCH           // MCDRV_SET_SP, bSwap
+MIXER_PDM_SWITCH
+MIXER_PDM_VOLUME
+MIXER_ADCL_PDM_SEL                      // bPdmSel
+MIXER_DAC_PLAYBACK_VOLUME               // aswD_DacAtt
+MIXER_DIR1_ATT_VOLUME                   // aswD_Dir1Att
+MIXER_AD_DIGITAL_VOLUME                 // aswD_Ad0
+MIXER_AENG6_VOLUME                      // aswD_Aeng6
+MIXER_DIR0_VOLUME                       // aswD_Dir0
+MIXER_DIR1_VOLUME                       // aswD_Dir1
+MIXER_DIR2_VOLUME                       // aswD_Dir2
+MIXER_DIR0_ATT_VOLUME                   // aswD_Dir0Att
+MIXER_DIR1_ATT_VOLUME                   // aswD_Dir1Att
+MIXER_DIR2_ATT_VOLUME                   // aswD_Dir2Att
+MIXER_DAC_PLAYBACK_VOLUME               // aswD_DacMaster
+MIXER_DIT0_CAPTURE_VOLUME               // aswD_Dit0
+MIXER_DIT1_CAPTURE_VOLUME               // aswD_Dit1
+MIXER_DIT2_CAPTURE_VOLUME               // aswD_Dit0
+MIXER_AD_ANALOG_VOLUME                  // aswA_Ad0
+
+MIXER_HPL_MIXER_DAC_SWITCH              // asHpOut[0]..abSrcOnOff[x]
+MIXER_HPL_MIXER_LINE_SWITCH             // asHpOut[0]..abSrcOnOff[x]
+MIXER_HPL_MIXER_MIC1_SWITCH             // asHpOut[0]..abSrcOnOff[x]
+MIXER_HPL_MIXER_MIC2_SWITCH             // asHpOut[0]..abSrcOnOff[x]
+MIXER_HPL_MIXER_MIC3_SWITCH             // asHpOut[0]..abSrcOnOff[x]
+MIXER_HPR_MIXER_DACR_SWITCH             // asHpOut[1]..abSrcOnOff[x]
+MIXER_HPR_MIXER_LINER_SWITCH            // asHpOut[1]..abSrcOnOff[x]
+MIXER_HPR_MIXER_MIC1_SWITCH             // asHpOut[1]..abSrcOnOff[x]
+MIXER_HPR_MIXER_MIC2_SWITCH             // asHpOut[1]..abSrcOnOff[x]
+MIXER_HPR_MIXER_MIC3_SWITCH             // asHpOut[1]..abSrcOnOff[x]
+			
+MIXER_SPL_DAC_MIXMODE                   // asSpOut[0].abSrcOnOff[x]
+MIXER_SPL_LINE_MIXMODE                  // asSpOut[0].abSrcOnOff[x]
+MIXER_SPL_MIXER_DAC_SWITCH              // asSpOut[0].abSrcOnOff[x]
+MIXER_SPL_MIXER_LINE_SWITCH             // asSpOut[0].abSrcOnOff[x]
+MIXER_SPR_DAC_MIXMODE                   // asSpOut[1].abSrcOnOff[x]
+MIXER_SPR_LINE_MIXMODE                  // asSpOut[1].abSrcOnOff[x]
+MIXER_SPR_MIXER_DAC_SWITCH              // asSpOut[1].abSrcOnOff[x]
+MIXER_SPR_MIXER_LINE_SWITCH             // asSpOut[1].abSrcOnOff[x]
+  
+MIXER_RC_MIXER_DACL_SWITCH              // asRcOut[0].abSrcOnOff[x]
+MIXER_RC_MIXER_DACR_SWITCH              // asRcOut[0].abSrcOnOff[x]
+MIXER_RC_MIXER_LINEMONO_SWITCH          // asRcOut[0].abSrcOnOff[x]
+MIXER_RC_MIXER_MIC1_SWITCH              // asRcOut[0].abSrcOnOff[x]
+MIXER_RC_MIXER_MIC2_SWITCH              // asRcOut[0].abSrcOnOff[x]
+MIXER_RC_MIXER_MIC3_SWITCH              // asRcOut[0].abSrcOnOff[x]
+
+MIXER_LINEOUT1L_DAC_MIXMODE             // asLout1[0].abSrcOnOff[x]
+MIXER_LINEOUT1L_LINE_MIXMODE            // asLout1[0].abSrcOnOff[x]
+MIXER_LINEOUT1L_MIXER_DAC_SWITCH        // asLout1[0].abSrcOnOff[x]
+MIXER_LINEOUT1L_MIXER_LINE_SWITCH       // asLout1[0].abSrcOnOff[x]
+MIXER_LINEOUT1L_MIXER_MIC1_SWITCH       // asLout1[0].abSrcOnOff[x]
+MIXER_LINEOUT1L_MIXER_MIC2_SWITCH       // asLout1[0].abSrcOnOff[x]
+MIXER_LINEOUT1L_MIXER_MIC3_SWITCH       // asLout1[0].abSrcOnOff[x]
+MIXER_LINEOUT1R_MIXER_DACR_SWITCH       // asLout1[1].abSrcOnOff[x]
+MIXER_LINEOUT1R_MIXER_LINER_SWITCH      // asLout1[1].abSrcOnOff[x]
+MIXER_LINEOUT1R_MIXER_MIC1_SWITCH       // asLout1[1].abSrcOnOff[x]
+MIXER_LINEOUT1R_MIXER_MIC2_SWITCH       // asLout1[1].abSrcOnOff[x]
+MIXER_LINEOUT1R_MIXER_MIC3_SWITCH       // asLout1[1].abSrcOnOff[x]
+
+MIXER_LINEOUT2L_DAC_MIXMODE             // asLout2[0].abSrcOnOff[x]
+MIXER_LINEOUT2L_LINE_MIXMODE            // asLout2[0].abSrcOnOff[x]
+MIXER_LINEOUT2L_MIXER_DAC_SWITCH        // asLout2[0].abSrcOnOff[x]
+MIXER_LINEOUT2L_MIXER_LINE_SWITCH       // asLout2[0].abSrcOnOff[x]
+MIXER_LINEOUT2L_MIXER_MIC1_SWITCH       // asLout2[0].abSrcOnOff[x]
+MIXER_LINEOUT2L_MIXER_MIC2_SWITCH       // asLout2[0].abSrcOnOff[x]
+MIXER_LINEOUT2L_MIXER_MIC3_SWITCH       // asLout2[0].abSrcOnOff[x]
+MIXER_LINEOUT2R_MIXER_DACR_SWITCH       // asLout2[1].abSrcOnOff[x]
+MIXER_LINEOUT2R_MIXER_LINER_SWITCH      // asLout2[1].abSrcOnOff[x]
+MIXER_LINEOUT2R_MIXER_MIC1_SWITCH       // asLout2[1].abSrcOnOff[x]
+MIXER_LINEOUT2R_MIXER_MIC2_SWITCH       // asLout2[1].abSrcOnOff[x]
+MIXER_LINEOUT2R_MIXER_MIC3_SWITCH       // asLout2[1].abSrcOnOff[x]
+
+MIXER_DIT1_CAPTURE_SWITCH               // asDit1[0].abSrcOnOff[x]
+MIXER_DIT1_SRC                          // asDit1[0].abSrcOnOff[x]
+MIXER_DIT2_CAPTURE_SWITCH               // asDit2[0].abSrcOnOff[x]
+MIXER_DIT2_SRC                          // asDit2[0].abSrcOnOff[x]
+
+MIXER_DACMAIN_SRC                       // asDac[0].abSrcOnOff[x]
+MIXER_DACVOICE_SRC                      // asDac[0].abSrcOnOff[x]
+
+MIXER_AE_PARAMETER_SEL                  // asAe[0].abSrcOnOff[x]		
+MIXER_AE_SRC                            // asAe[0].abSrcOnOff[x]	
+MIXER_AENG6_SWITCH                      // asAe[0].abSrcOnOff[x]
+
+MIXER_ADCL_LINE_MIXMODE                 // asAdc0[0].abSrcOnOff[x]
+MIXER_ADCL_MIXER_LINE_SWITCH            // asAdc0[0].abSrcOnOff[x]
+MIXER_ADCL_MIXER_MIC1_SWITCH            // asAdc0[0].abSrcOnOff[x]
+MIXER_ADCL_MIXER_MIC2_SWITCH            // asAdc0[0].abSrcOnOff[x]
+MIXER_ADCL_MIXER_MIC3_SWITCH            // asAdc0[0].abSrcOnOff[x]
+MIXER_ADCR_LINE_MIXMODE                 // asAdc0[1].abSrcOnOff[x]
+MIXER_ADCR_MIXER_LINE_SWITCH            // asAdc0[1].abSrcOnOff[x]
+MIXER_ADCR_MIXER_MIC1_SWITCH            // asAdc0[1].abSrcOnOff[x]
+MIXER_ADCR_MIXER_MIC2_SWITCH            // asAdc0[1].abSrcOnOff[x]
+MIXER_ADCR_MIXER_MIC3_SWITCH            // asAdc0[1].abSrcOnOff[x]
