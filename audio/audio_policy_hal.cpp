@@ -24,7 +24,7 @@
 #include <system/audio_policy.h>
 #include <hardware/audio_policy.h>
 
-#include <hardware_legacy/AudioPolicyInterface.h>
+#include <AudioPolicyInterface.h>
 #include <hardware_legacy/AudioSystemLegacy.h>
 
 #include "AudioPolicyCompatClient.h"
