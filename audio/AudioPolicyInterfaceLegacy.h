@@ -23,7 +23,7 @@
 
 #include <hardware_legacy/AudioSystemLegacy.h>
 
-namespace android_audio_legacy {
+namespace android {
     using android::Vector;
     using android::String8;
     using android::ToneGenerator;

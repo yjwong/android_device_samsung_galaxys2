@@ -15,7 +15,7 @@
  */
 
 #define LOG_TAG "legacy_audio_policy_hal"
-#define LOG_NDEBUG 0
+//#define LOG_NDEBUG 0
 
 #include <stdint.h>
 
