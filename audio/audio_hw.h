@@ -379,6 +379,9 @@ struct route_setting hp_output[] = {
         .ctl_name = MIXER_HP_GAIN_PLAYBACK_VOLUME,
         .intval = 3,
     },
+    {
+        .ctl_name = NULL,
+    },
 };
 
 // route settings while doing speaker playback
@@ -391,6 +394,9 @@ struct route_setting spk_output[] = {
     {
         .ctl_name = MIXER_SPEAKER_PLAYBACK_VOLUME,
         .intval = 31,
+    },
+    {
+        .ctl_name = NULL,
     },
 };
 
@@ -405,6 +411,9 @@ struct route_setting ear_output[] = {
         .ctl_name = MIXER_SPEAKER_PLAYBACK_VOLUME,
         .intval = 31,
     },
+    {
+        .ctl_name = NULL,
+    },
 };
 
 // route settings while doing bluetooth playback
@@ -417,6 +426,9 @@ struct route_setting bt_output[] = {
     {
         .ctl_name = MIXER_SPEAKER_PLAYBACK_VOLUME,
         .intval = 31,
+    },
+    {
+        .ctl_name = NULL,
     },
 };
 

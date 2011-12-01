@@ -989,11 +989,22 @@ static void select_output_device(struct audio_device *adev)
         }
     }
 
-    /* select output stage */
-    set_route_by_array(adev->mixer, hp_output, headset_on | headphone_on);
-    set_route_by_array(adev->mixer, spk_output, speaker_on);
-    set_route_by_array(adev->mixer, ear_output, earpiece_on);
-    set_route_by_array(adev->mixer, bt_output, bt_on);
+	LOGD("Output device headset = %d", headset_on );
+	LOGD("Output device headphone = %d", headphone_on );
+	LOGD("Output device speaker = %d", speaker_on );
+	LOGD("Output device earpiece = %d", earpiece_on );
+	LOGD("Output device bt = %d", bt_on );
+
+	/* select output stage */
+	if (headset_on || headphone_on) {
+		set_route_by_array(adev->mixer, hp_output, 1);
+    } else if (speaker_on) {
+		set_route_by_array(adev->mixer, spk_output, 1);
+	} else if (earpiece_on) {
+		set_route_by_array(adev->mixer, ear_output, 1);
+	} else if (bt_on) {
+		set_route_by_array(adev->mixer, bt_output, 1);
+	}
 
     //set_eq_filter(adev);
     //set_output_volumes(adev, tty_volume);
