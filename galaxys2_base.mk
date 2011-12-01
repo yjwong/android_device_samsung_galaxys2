@@ -28,11 +28,6 @@ PRODUCT_COPY_FILES := \
 	device/samsung/galaxys2/init.smdkv310.rc:root/init.smdkv310.rc \
 	device/samsung/galaxys2/ueventd.smdkv310.rc:root/ueventd.smdkv310.rc
 
-# APNs - REMOVE IF VENDOR CYANOGEN IS BACK
-PRODUCT_COPY_FILES += \
-	development/data/etc/apns-conf.xml:system/etc/apns-conf.xml \
-	device/samsung/galaxys2/configs/spn-conf.xml:system/etc/spn-conf.xml
-
 # Audio
 # soundbooster.txt - needs to be at /data/soundbooster.txt
 PRODUCT_COPY_FILES += \
@@ -71,7 +66,6 @@ PRODUCT_COPY_FILES += \
 # Packages
 PRODUCT_PACKAGES := \
     audio.primary.smdkv310 \
-    audio_policy.smdkv310 \
     gps.smdkv310 \
     smdkv310_hdcp_keys \
     com.android.future.usb.accessory
