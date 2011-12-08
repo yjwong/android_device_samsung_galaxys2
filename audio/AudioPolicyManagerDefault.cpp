@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-#include <AudioSystem.h>
 #define LOG_TAG "AudioPolicyManagerDefault"
 //#define LOG_NDEBUG 0
 
 #include "AudioPolicyManagerDefault.h"
 
-namespace android {
+namespace android_audio_legacy {
 
 extern "C" AudioPolicyInterface* createAudioPolicyManager(AudioPolicyClientInterface *clientInterface)
 {

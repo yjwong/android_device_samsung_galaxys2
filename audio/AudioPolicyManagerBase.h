@@ -20,11 +20,11 @@
 #include <utils/Timers.h>
 #include <utils/Errors.h>
 #include <utils/KeyedVector.h>
-#include "AudioPolicyInterfaceLegacy.h"
-#include <AudioSystem.h>
+#include <hardware_legacy/AudioPolicyInterface.h>
 
 
-namespace android {
+namespace android_audio_legacy {
+    using android::KeyedVector;
 
 // ----------------------------------------------------------------------------
 

@@ -22,7 +22,7 @@
 #include <hardware/audio_policy.h>
 
 #include <hardware_legacy/AudioSystemLegacy.h>
-#include <AudioPolicyInterface.h>
+#include <hardware_legacy/AudioPolicyInterface.h>
 
 /************************************/
 /* FOR BACKWARDS COMPATIBILITY ONLY */

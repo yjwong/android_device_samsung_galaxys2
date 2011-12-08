@@ -133,10 +133,11 @@ public:
     // retreive current volume index for the specified stream
     virtual status_t getStreamVolumeIndex(AudioSystem::stream_type stream, int *index) = 0;
 
-    virtual status_t dummyA(int) { return 0; };
-
     // return the strategy corresponding to a given stream type
     virtual uint32_t getStrategyForStream(AudioSystem::stream_type stream) = 0;
+
+    // return the enabled output devices for the given stream type
+    virtual uint32_t getDevicesForStream(AudioSystem::stream_type stream) = 0;
 
     // Audio effect management
     virtual audio_io_handle_t getOutputForEffect(effect_descriptor_t *desc) = 0;
@@ -147,14 +148,10 @@ public:
                                     int id) = 0;
     virtual status_t unregisterEffect(int id) = 0;
 
-    //dump state
-    virtual status_t    dump(int fd) = 0;
-    // return the enabled output devices for the given stream type
-    virtual uint32_t getDevicesForStream(AudioSystem::stream_type stream) = 0;
-    virtual status_t setEffectEnabled(int id, bool enabled) = 0;
-
     virtual bool isStreamActive(int stream, uint32_t inPastMs = 0) const = 0;
 
+    //dump state
+    virtual status_t    dump(int fd) = 0;
 };
 
 

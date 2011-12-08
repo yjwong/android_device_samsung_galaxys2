@@ -18,9 +18,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <AudioPolicyManagerBase.h>
+#include <hardware_legacy/AudioPolicyManagerBase.h>
 
-namespace android {
+namespace android_audio_legacy {
 
 class AudioPolicyManagerDefault: public AudioPolicyManagerBase
 {
