@@ -55,7 +55,7 @@ PRODUCT_COPY_FILES += \
 	device/samsung/galaxys2/configs/bcmdhd.cal:system/etc/wifi/bcmdhd.cal
 
 PRODUCT_PROPERTY_OVERRIDES := \
-	wifi.interface=eth0 \
+	wifi.interface=wlan0 \
 	wifi.supplicant_scan_interval=15
 
 $(call inherit-product-if-exists, hardware/broadcom/wlan/bcmdhd/firmware/bcm4330/device-bcm.mk)
@@ -85,7 +85,7 @@ PRODUCT_PACKAGES += \
 # Ril
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.ril_class=samsung \
-    mobiledata.interfaces=pdp0,eth0,gprs,ppp0
+    mobiledata.interfaces=pdp0,wlan0,gprs,ppp0
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
