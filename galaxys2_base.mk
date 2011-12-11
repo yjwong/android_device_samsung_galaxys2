@@ -34,13 +34,15 @@ PRODUCT_COPY_FILES += \
     device/samsung/galaxys2/configs/audio_effects.conf:system/etc/audio_effects.conf \
 	device/samsung/galaxys2/configs/soundbooster.txt:system/etc/audio/soundbooster.txt
 
-# Touchscreen
-PRODUCT_COPY_FILES += \
-	device/samsung/galaxys2/configs/sec_ts_ics_bio.idc:system/usr/idc/sec_ts_ics_bio.idc
-
 # Vold
 PRODUCT_COPY_FILES += \
 	device/samsung/galaxys2/configs/vold.fstab:system/etc/vold.fstab \
+
+# omx
+PRODUCT_COPY_FILES += \
+	device/samsung/galaxys2/configs/media_profiles.xml:system/etc/media_profiles.xml \
+	device/samsung/galaxys2/configs/secomxregistry:system/etc/secomxregistry \
+	device/samsung/galaxys2/configs/somxreg.conf:system/etc/somxreg.conf
 
 # Bluetooth configuration files
 PRODUCT_COPY_FILES += \
