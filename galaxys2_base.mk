@@ -32,6 +32,7 @@ PRODUCT_COPY_FILES := \
 # soundbooster.txt - needs to be at /data/soundbooster.txt
 PRODUCT_COPY_FILES += \
 	device/samsung/galaxys2/configs/asound.conf:system/etc/asound.conf \
+    device/samsung/galaxys2/configs/audio_effects.conf:system/etc/audio_effects.conf \
 	device/samsung/galaxys2/configs/soundbooster.txt:system/etc/audio/soundbooster.txt
 
 # Touchscreen
