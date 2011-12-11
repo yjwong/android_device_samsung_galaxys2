@@ -25,8 +25,8 @@ PRODUCT_COPY_FILES += \
 	device/samsung/galaxys2/keylayout/sec_touchkey.kl:/system/usr/keylayout/sec_touchkey.kl
 
 # kernel modules for ramdisk
-RAMDISK_MODULES := $(addprefix device/samsung/galaxys2/modules/,bthid.ko dhd.ko gspca_main.ko j4fs.ko \
-	scsi_wait_scan.ko Si4709_driver.ko vibrator.ko)
+RAMDISK_MODULES := $(addprefix device/samsung/galaxys2/modules/,dhd.ko j4fs.ko \
+	scsi_wait_scan.ko Si4709_driver.ko)
 PRODUCT_COPY_FILES += $(foreach module,\
 	$(RAMDISK_MODULES),\
 	$(module):root/lib/modules/$(notdir $(module)))

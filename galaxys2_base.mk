@@ -23,10 +23,9 @@ PRODUCT_LOCALES += hdpi
 # Init files
 PRODUCT_COPY_FILES := \
 	device/samsung/galaxys2/lpm.rc:root/lpm.rc \
-	device/samsung/galaxys2/init.smdkv310.usb.rc:root/init.smdkv310.usb.rc \
-	device/samsung/galaxys2/init.smdkc210.rc:root/init.smdkc210.rc \
-	device/samsung/galaxys2/init.smdkv310.rc:root/init.smdkv310.rc \
-	device/samsung/galaxys2/ueventd.smdkv310.rc:root/ueventd.smdkv310.rc
+	device/samsung/galaxys2/init.smdk4210.usb.rc:root/init.smdk4210.usb.rc \
+	device/samsung/galaxys2/init.smdk4210.rc:root/init.smdk4210.rc \
+	device/samsung/galaxys2/ueventd.smdk4210.rc:root/ueventd.smdk4210.rc
 
 # Audio
 # soundbooster.txt - needs to be at /data/soundbooster.txt
@@ -66,10 +65,6 @@ PRODUCT_COPY_FILES += \
 
 # Packages
 PRODUCT_PACKAGES := \
-    audio.primary.smdkv310 \
-    audio_policy.smdkv310 \
-    gps.smdkv310 \
-    smdkv310_hdcp_keys \
     com.android.future.usb.accessory
 
 # Charger
@@ -82,15 +77,12 @@ PRODUCT_PACKAGES += \
 	Camera
 
 # Sensors
-PRODUCT_PACKAGES += \
-	lights.smdkv310 \
-	sensors.smdkv310
+#PRODUCT_PACKAGES += \
+#	sensors.s5pc210
 
 # Ril
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.ril_class=samsung \
-    ro.telephony.ril.v3=1 \
-    ro.telephony.sends_barcount=1 \
     mobiledata.interfaces=pdp0,eth0,gprs,ppp0
 
 # Filesystem management tools
