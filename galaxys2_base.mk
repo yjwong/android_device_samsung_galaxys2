@@ -138,3 +138,7 @@ PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
 	persist.sys.usb.config=mtp
 
 $(call inherit-product, frameworks/base/build/phone-hdpi-512-dalvik-heap.mk)
+
+# bootanimation
+PRODUCT_COPY_FILES += \
+    vendor/teamhacksung/prebuilt/media/bootanimation.zip:system/media/bootanimation.zip
