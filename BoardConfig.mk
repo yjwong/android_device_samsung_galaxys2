@@ -58,7 +58,10 @@ TARGET_RELEASETOOL_IMG_FROM_TARGET_SCRIPT := ./device/samsung/galaxys2/releaseto
 # Graphics
 BOARD_EGL_CFG := device/samsung/galaxys2/configs/egl.cfg
 USE_OPENGL_RENDERER := true
+
+# HWComposer
 BOARD_USES_HWCOMPOSER := true
+BOARD_USE_SECTVOUT := true
 
 # Audio
 BOARD_USE_YAMAHAPLAYER := true
