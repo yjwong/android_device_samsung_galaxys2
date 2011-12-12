@@ -85,6 +85,7 @@ PRODUCT_PACKAGES += \
 # Ril
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.ril_class=samsung \
+    ro.telephony.default_network=1 \
     mobiledata.interfaces=pdp0,wlan0,gprs,ppp0
 
 # Filesystem management tools
