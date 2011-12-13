@@ -79,8 +79,8 @@ PRODUCT_PACKAGES += \
 	Camera
 
 # Sensors
-#PRODUCT_PACKAGES += \
-#	sensors.s5pc210
+PRODUCT_PACKAGES += \
+	sensors.s5pc210
 
 # Ril
 PRODUCT_PROPERTY_OVERRIDES += \
