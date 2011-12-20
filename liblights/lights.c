@@ -117,13 +117,9 @@ set_light_buttons(struct light_device_t* dev,
     int err = 0;
     int on = is_lit(state);
 
-	LOGD("set_light_button enable=%d\n", on ? 1 : 0);
     pthread_mutex_lock(&g_lock);
-    err = write_int(BUTTON_POWER, on ? 1:0);
-    if ( err == 0 ) {
-		LOGD("set_light_button brightness=%d\n", on ? 255 : 0);
-		err = write_int(BUTTON_FILE, on ? 255:0);
-	}
+    LOGD("set_light_button on=%d\n", on ? 1 : 0);
+    err = write_int(BUTTON_FILE, on ? 1:0);
     pthread_mutex_unlock(&g_lock);
 
     return err;
