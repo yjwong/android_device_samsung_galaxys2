@@ -35,7 +35,7 @@
 #include "LightSensor.h"
 #include "ProximitySensor.h"
 #include "AkmSensor.h"
-#include "GyroSensor.h"
+//#include "GyroSensor.h"
 
 /*****************************************************************************/
 
@@ -49,14 +49,14 @@
 #define SENSORS_ORIENTATION      (1<<ID_O)
 #define SENSORS_LIGHT            (1<<ID_L)
 #define SENSORS_PROXIMITY        (1<<ID_P)
-#define SENSORS_GYROSCOPE        (1<<ID_GY)
+//#define SENSORS_GYROSCOPE        (1<<ID_GY)
 
 #define SENSORS_ACCELERATION_HANDLE     0
 #define SENSORS_MAGNETIC_FIELD_HANDLE   1
 #define SENSORS_ORIENTATION_HANDLE      2
 #define SENSORS_LIGHT_HANDLE            3
 #define SENSORS_PROXIMITY_HANDLE        4
-#define SENSORS_GYROSCOPE_HANDLE        5
+//#define SENSORS_GYROSCOPE_HANDLE        5
 
 #define AKM_FTRACE 0
 #define AKM_DEBUG 0
@@ -86,10 +86,10 @@ static const struct sensor_t sSensorList[] = {
           "Capella Microsystems",
           1, SENSORS_PROXIMITY_HANDLE,
           SENSOR_TYPE_PROXIMITY, 5.0f, 5.0f, 0.75f, 0, { } },
-        { "K3G Gyroscope sensor",
+/*        { "K3G Gyroscope sensor",
           "STMicroelectronics",
           1, SENSORS_GYROSCOPE_HANDLE,
-          SENSOR_TYPE_GYROSCOPE, RANGE_GYRO, CONVERT_GYRO, 6.1f, 1190, { } },
+          SENSOR_TYPE_GYROSCOPE, RANGE_GYRO, CONVERT_GYRO, 6.1f, 1190, { } }, */
 };
 
 
@@ -135,7 +135,7 @@ private:
         light           = 0,
         proximity       = 1,
         akm             = 2,
-        gyro            = 3,
+        //gyro            = 3,
         numSensorDrivers,
         numFds,
     };
@@ -156,8 +156,8 @@ private:
                 return proximity;
             case ID_L:
                 return light;
-            case ID_GY:
-                return gyro;
+            //case ID_GY:
+              //  return gyro;
         }
         return -EINVAL;
     }
@@ -181,12 +181,12 @@ sensors_poll_context_t::sensors_poll_context_t()
     mPollFds[akm].fd = mSensors[akm]->getFd();
     mPollFds[akm].events = POLLIN;
     mPollFds[akm].revents = 0;
-
+/*
     mSensors[gyro] = new GyroSensor();
     mPollFds[gyro].fd = mSensors[gyro]->getFd();
     mPollFds[gyro].events = POLLIN;
     mPollFds[gyro].revents = 0;
-
+*/
     int wakeFds[2];
     int result = pipe(wakeFds);
     LOGE_IF(result<0, "error creating wake pipe (%s)", strerror(errno));
