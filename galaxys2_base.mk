@@ -28,11 +28,9 @@ PRODUCT_COPY_FILES := \
 	device/samsung/galaxys2/ueventd.smdk4210.rc:root/ueventd.smdk4210.rc
 
 # Audio
-# soundbooster.txt - needs to be at /data/soundbooster.txt
 PRODUCT_COPY_FILES += \
 	device/samsung/galaxys2/configs/asound.conf:system/etc/asound.conf \
-    device/samsung/galaxys2/configs/audio_effects.conf:system/etc/audio_effects.conf \
-	device/samsung/galaxys2/configs/soundbooster.txt:system/etc/audio/soundbooster.txt
+    device/samsung/galaxys2/configs/audio_effects.conf:system/etc/audio_effects.conf
 
 # Vold
 PRODUCT_COPY_FILES += \
@@ -138,7 +136,8 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.opengles.version=131072 \
-	hwui.render_dirty_regions=false
+	hwui.render_dirty_regions=false \
+	hwui.disable_vsync=true
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.sf.lcd_density=240
