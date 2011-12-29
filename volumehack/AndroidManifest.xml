@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="com.teamhacksung.volumehack" android:versionCode="1"
+	android:versionName="1.0">
+
+	<application android:label="VolumeHack">
+
+		<service android:exported="false" android:enabled="true"
+			android:name=".service.HeadsetService">
+		</service>
+
+		<receiver android:name=".receiver.BootCompletedReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</receiver>
+		
+		<receiver android:name=".receiver.HeadsetPlugReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.HEADSET_PLUG" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</receiver>
+		
+	</application>
+
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"></uses-permission>
+	<uses-permission android:name="android.permission.BROADCAST_STICKY"></uses-permission>
+	<uses-permission android:name="android.permission.FACTORY_TEST"></uses-permission>
+</manifest> 
