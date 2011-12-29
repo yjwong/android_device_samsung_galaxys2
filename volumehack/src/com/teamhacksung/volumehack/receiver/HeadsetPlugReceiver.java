@@ -28,7 +28,7 @@ public class HeadsetPlugReceiver extends BroadcastReceiver {
 				String [] commands = { "/system/bin/alsa_amixer sset 'DAC' 75", 
 									  "/system/bin/alsa_amixer sset 'Headphone' 0", 
 									  "/system/bin/alsa_amixer sset 'HP Gain' 0",
-									  "/system/bin/alsa_amixer sset 'Speaker' 31" };
+									  "/system/bin/alsa_amixer sset 'Speaker' on" };
 				
 				Process process = Runtime.getRuntime().exec("su");
 				DataOutputStream os = new DataOutputStream(process.getOutputStream());
@@ -57,7 +57,7 @@ public class HeadsetPlugReceiver extends BroadcastReceiver {
 				String [] commands = { "/system/bin/alsa_amixer sset 'DAC' 80", 
 									  "/system/bin/alsa_amixer sset 'Headphone' 31", 
 									  "/system/bin/alsa_amixer sset 'HP Gain' 3",
-									  "/system/bin/alsa_amixer sset 'Speaker' 0" };
+									  "/system/bin/alsa_amixer sset 'Speaker' off" };
 				
 				Process process = Runtime.getRuntime().exec("su");
 				DataOutputStream os = new DataOutputStream(process.getOutputStream());
