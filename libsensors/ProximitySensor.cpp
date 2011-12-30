@@ -39,7 +39,6 @@ ProximitySensor::ProximitySensor()
     mPendingEvent.version = sizeof(sensors_event_t);
     mPendingEvent.sensor = ID_P;
     mPendingEvent.type = SENSOR_TYPE_PROXIMITY;
-    LOGV("ProximitySensor: Was Created");
     memset(mPendingEvent.data, 0, sizeof(mPendingEvent.data));
 
     if (data_fd) {
@@ -69,7 +68,6 @@ int ProximitySensor::setInitialState() {
 
 int ProximitySensor::enable(int32_t, int en) {
     int flags = en ? 1 : 0;
-    LOGV("ProximitySensor: Was Enabled");
     if (flags != mEnabled) {
         int fd;
         strcpy(&input_sysfs_path[input_sysfs_path_len], "enable");
