@@ -79,8 +79,8 @@ PRODUCT_PACKAGES += \
 
 # Sensors
 PRODUCT_PACKAGES += \
-	lights.s5pc210 \
-	sensors.s5pc210
+	lights.exynos4 \
+	sensors.exynos4
 
 # Ril
 PRODUCT_PROPERTY_OVERRIDES += \
